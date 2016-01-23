@@ -9,6 +9,35 @@ distributed except according to those terms.
 
 */
 
+/*!
+_Crest_ is a REST client library built upon [Hyper](http://hyper.rs/).
+
+# Usage
+
+## Making a `GET` request
+
+```
+extern crate crest;
+extern crate hyper;
+
+use crest::*;
+
+fn main() {
+    // 1. Construct the endpoint with a base URL
+    let endpoint = Endpoint::new("https://httpbin.org/").unwrap();
+
+    // 2. Declare the request
+    let path = ["status", "418"];
+    let request = Request::get(&path);
+
+    // 3. Make the request
+    let response = endpoint.send(request).unwrap();
+
+    assert_eq!(response.status, ::hyper::status::StatusCode::ImATeapot);
+}
+```
+!*/
+
 extern crate hyper;
 extern crate url;
 
