@@ -1,5 +1,7 @@
 # Crest
 
+[![Build Status](https://travis-ci.org/pablocouto/crest.svg?branch=master)](https://travis-ci.org/pablocouto/crest)
+
 _Crest_ is a REST client library, written in Rust.
 
 # Status
