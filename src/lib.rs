@@ -12,59 +12,20 @@ distributed except according to those terms.
 extern crate hyper;
 extern crate url;
 
-use std::convert::From;
-use std::error::Error as StdError;
-use std::fmt;
+mod error;
 
 use hyper::client::{
     Client,
     Response,
 };
-use hyper::error::Error as HyperError;
-use url::{
-    ParseError as UrlParseError,
-    Url,
-};
+use url::Url;
 
 #[doc(no_inline)]
 pub use hyper::header::Headers;
 #[doc(no_inline)]
 pub use hyper::method::Method;
 
-#[derive(Debug)]
-pub enum Error {
-    Hyper(HyperError),
-    Url(UrlParseError),
-}
-
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        f.write_str(self.description())
-    }
-}
-
-impl StdError for Error {
-    fn description(&self) -> &str {
-        match *self {
-            Error::Hyper(ref e) => e.description(),
-            Error::Url(ref e) => e.description(),
-        }
-    }
-}
-
-pub type Result<T> = ::std::result::Result<T, Error>;
-
-impl From<UrlParseError> for Error {
-    fn from(e: UrlParseError) -> Error {
-        Error::Url(e)
-    }
-}
-
-impl From<HyperError> for Error {
-    fn from(e: HyperError) -> Error {
-        Error::Hyper(e)
-    }
-}
+use error::Result;
 
 pub struct Request<'a> {
     method: Method,
