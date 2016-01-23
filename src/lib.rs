@@ -18,12 +18,11 @@ use hyper::client::{
     Client,
     Response,
 };
+use hyper::method::Method;
 use url::Url;
 
 #[doc(no_inline)]
 pub use hyper::header::Headers;
-#[doc(no_inline)]
-pub use hyper::method::Method;
 
 use error::Result;
 
