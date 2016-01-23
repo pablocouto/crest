@@ -3,6 +3,11 @@ name = "crest"
 version = "0.1.0"
 authors = ["Pablo Couto <pablo@0x221e.net>"]
 
+description = "A REST client library."
+repository = "https://github.com/pablocouto/crest"
+keywords = ["rest", "client"]
+license = "Apache-2.0/MIT"
+
 [dependencies]
 hyper = "0.7"
 url = "0.5"
