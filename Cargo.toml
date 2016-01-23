@@ -1,0 +1,8 @@
+[package]
+name = "crest"
+version = "0.1.0"
+authors = ["Pablo Couto <pablo@0x221e.net>"]
+
+[dependencies]
+hyper = "0.7"
+url = "0.5"
