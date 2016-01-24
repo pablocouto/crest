@@ -41,7 +41,7 @@ fn main() {
 extern crate hyper;
 extern crate url;
 
-mod error;
+pub mod error;
 
 use hyper::client::{
     Client,
