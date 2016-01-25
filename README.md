@@ -8,6 +8,10 @@ _Crest_ is a REST client library, written in Rust.
 
 It is currently experimental, and incomplete. Pull requests are welcome.
 
+# Usage
+
+Documentation is available [here](https://pablocouto.github.io/crest/crest/index.html).
+
 # License
 
 _Crest_ is licensed under the Apache License, Version 2.0 (see `LICENSE-APACHE`) or the MIT license (see `LICENSE-MIT`), at your option.
