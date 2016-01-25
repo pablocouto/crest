@@ -21,17 +21,18 @@ extern crate crest;
 extern crate hyper;
 
 use crest::*;
+use crest::request::Request;
 
 fn main() {
-    // 1. Construct the endpoint with a base URL
+    // 1. Construct the endpoint off a base URL
     let endpoint = Endpoint::new("https://httpbin.org/").unwrap();
 
-    // 2. Declare the request
-    let path = ["status", "418"];
-    let request = Request::get(&path);
+    // 2. Construct the request
+    let resource = ["status", "418"];
+    let request = endpoint.get(&resource);
 
-    // 3. Make the request
-    let response = endpoint.send(request).unwrap();
+    // 3. Perform the request
+    let response = request.send().unwrap();
 
     assert_eq!(response.status, ::hyper::status::StatusCode::ImATeapot);
 }
@@ -44,11 +45,7 @@ extern crate url;
 pub mod error;
 pub mod request;
 
-use hyper::client::{
-    Client,
-    Response,
-};
-use hyper::method::Method;
+use hyper::client::Client;
 use url::Url;
 
 use error::Result;
@@ -79,30 +76,30 @@ impl Endpoint {
     }
 
     /**
-    Sends the given `Request`.
+    Convenience function to create a `GET` request.
      */
-    pub fn send<'a>(&self, request: Request<'a>) -> Result<Response> {
-        let path = request.path.join("/");
-        let url = self.base.join(&path).unwrap();
+    pub fn get<'a>(&'a self, path: &'a [&'a str]) -> Get<'a> {
+        Get::new(self, path)
+    }
 
-        let mut req = match request.method {
-            Method::Get => self.client.get(url),
-            Method::Post => self.client.post(url),
-            Method::Delete => self.client.delete(url),
-            _ => unimplemented!(),
-        };
+    /**
+    Convenience function to create a `POST` request.
+     */
+    pub fn post<'a>(
+        &'a self,
+        path: &'a [&'a str],
+        body: &'a str,
+    ) -> Post<'a> {
+        let mut request = Post::new(self, path);
+        request.body(body);
 
-        req = req.headers(request.headers);
+        request
+    }
 
-        if request.body.is_some() {
-            let b = request.body.unwrap();
-            req = req.body(b);
-        }
-
-        let response = req
-            .send()
-            .map_err(From::from);
-
-        response
+    /**
+    Convenience function to create a `DELETE` request.
+     */
+    pub fn delete<'a>(&'a self, path: &'a [&'a str]) -> Delete<'a> {
+        Delete::new(self, path)
     }
 }

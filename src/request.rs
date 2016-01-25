@@ -9,68 +9,77 @@ distributed except according to those terms.
 
  */
 
-#[doc(no_inline)]
-pub use hyper::header::Headers;
-
-use hyper::method::Method;
-
-/**
-Used to declare a REST request.
-
-The `path` argument is common to many of the functions below. This refers to the
-path of the REST resource; for example, a resource `/status/418` can be
-represented in this way:
-
-```
-let resource = &["status", "418"];
-```
+/*!
+REST requests.
 */
-pub struct Request<'a> {
-    pub method: Method,
-    pub path: &'a [&'a str],
-    pub headers: Headers,
-    pub body: Option<&'a str>,
+
+use hyper::header::Headers;
+use hyper::client::Response;
+
+use error::Result;
+use Endpoint;
+
+macro_rules! impl_Request {
+    ($ty: ident, $method: ident) => (
+        impl<'a> Request<'a> for $ty<'a> {
+            fn new(
+                endpoint: &'a Endpoint,
+                path: &'a [&'a str],
+            ) -> Self {
+                let data = Data {
+                    path: path,
+                    headers: Headers::new(),
+                    body: None,
+                };
+
+                $ty {
+                    endpoint: endpoint,
+                    data: data,
+                }
+            }
+
+            fn headers(&mut self) -> &mut Headers {
+                &mut self.data.headers
+            }
+
+            fn send(self) -> Result<Response> {
+                let path = self.data.path.join("/");
+                let url = self.endpoint.base.join(&path).unwrap();
+
+                let mut request = self.endpoint.client
+                    .$method(url)
+                    .headers(self.data.headers);
+
+                if self.data.body.is_some() {
+                    let body = self.data.body.unwrap();
+                    request = request.body(body);
+                }
+
+                let response = request
+                    .send()
+                    .map_err(From::from);
+
+                response
+            }
+        }
+    )
 }
 
-impl<'a> Request<'a> {
+pub trait Request<'a> {
     /**
-    Declares a `GET` request.
-     */
-    pub fn get(path: &'a [&'a str]) -> Request<'a> {
-        Request {
-            method: Method::Get,
-            path: path,
-            headers: Headers::new(),
-            body: None,
-        }
-    }
+    Constructs a REST request from a given `Endpoint`.
 
-    /**
-    Declares a `POST` request.
+    The `path` argument locates a REST resource; for example, a resource at
+    `/status/418` can be referenced like this:
+
+    ```
+    let resource = &["status", "418"];
+    ```
      */
-    pub fn post(
+    fn new(
+        endpoint: &'a Endpoint,
         path: &'a [&'a str],
-        body: &'a str,
-    ) -> Request<'a> {
-        Request {
-            method: Method::Post,
-            path: path,
-            headers: Headers::new(),
-            body: Some(body),
-        }
-    }
-
-    /**
-    Declares a `DELETE` request.
-     */
-    pub fn delete(path: &'a [&'a str]) -> Request<'a> {
-        Request {
-            method: Method::Delete,
-            path: path,
-            headers: Headers::new(),
-            body: None,
-        }
-    }
+    ) -> Self;
 
     /**
     Gives a mutable reference to the `Headers` inside a `Request`.
@@ -81,23 +90,72 @@ impl<'a> Request<'a> {
     # extern crate crest;
     # extern crate hyper;
     # use crest::*;
+    use crest::request::Request;
     use hyper::header;
 
     # fn main() {
+    let endpoint = Endpoint::new("https://httpbin.org/").unwrap();
     let resource = ["ip"];
-    let mut request = Request::get(&resource);
+    let mut request = endpoint.get(&resource);
     request.headers().set(header::Connection::close());
     # }
     ```
      */
-    pub fn headers(&mut self) -> &mut Headers {
-        &mut self.headers
-    }
+    fn headers(&mut self) -> &mut Headers;
 
+    /**
+    Performs the request.
+     */
+    fn send(self) -> Result<Response>;
+}
+
+pub trait Body<'a> where
+    Self: Request<'a>
+{
     /**
     Sets the body of a `Request`.
      */
-    pub fn body(&mut self, body: &'a str) {
-        self.body = Some(body);
+    fn body(&mut self, body: &'a str);
+}
+
+struct Data<'a> {
+    path: &'a [&'a str],
+    headers: Headers,
+    body: Option<&'a str>,
+}
+
+/**
+A `GET` request.
+ */
+pub struct Get<'a> {
+    endpoint: &'a Endpoint,
+    data: Data<'a>,
+}
+
+impl_Request!(Get, get);
+
+/**
+A `POST` request.
+ */
+pub struct Post<'a> {
+    endpoint: &'a Endpoint,
+    data: Data<'a>,
+}
+
+impl_Request!(Post, post);
+
+impl<'a> Body<'a> for Post<'a> {
+    fn body(&mut self, body: &'a str) {
+        self.data.body = Some(body);
     }
 }
+
+/**
+A `DELETE` request.
+ */
+pub struct Delete<'a> {
+    endpoint: &'a Endpoint,
+    data: Data<'a>,
+}
+
+impl_Request!(Delete, delete);
