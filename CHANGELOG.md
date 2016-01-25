@@ -4,6 +4,14 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0] - 2016-01-25
+### Added
+- Traits to specify functionality according to request type
+### Changed
+- Requests are represented by specific types instead of a common one
+### Fixed
+- Make `error` module public
+
 ## [0.1.1] - 2016-01-24
 ### Added
 - Documentation for `Endpoint` and `Request`, and a simple usage example
