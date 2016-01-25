@@ -17,11 +17,10 @@ _Crest_ is a REST client library built upon [Hyper](http://hyper.rs/).
 ## Making a `GET` request
 
 ```
-extern crate crest;
 extern crate hyper;
+extern crate crest;
 
-use crest::*;
-use crest::request::Request;
+use crest::prelude::*;
 
 fn main() {
     // 1. Construct the endpoint off a base URL
@@ -41,6 +40,21 @@ fn main() {
 
 extern crate hyper;
 extern crate url;
+
+pub mod prelude {
+    /*!
+    To ease getting _Crest_’s main entities into scope.
+
+    ```
+    use crest::prelude::*;
+    ```
+     */
+    pub use request::{
+        Body,
+        Request,
+    };
+    pub use Endpoint;
+}
 
 pub mod error;
 pub mod request;

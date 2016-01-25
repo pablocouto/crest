@@ -87,11 +87,10 @@ pub trait Request<'a> {
     For example, to declare a header with `Connection: close`:
 
     ```
-    # extern crate crest;
     # extern crate hyper;
-    # use crest::*;
-    use crest::request::Request;
+    # extern crate crest;
     use hyper::header;
+    use crest::prelude::*;
 
     # fn main() {
     let endpoint = Endpoint::new("https://httpbin.org/").unwrap();
