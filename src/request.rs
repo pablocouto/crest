@@ -98,8 +98,7 @@ pub trait Request<'a> {
 
     # fn main() {
     let endpoint = Endpoint::new("https://httpbin.org/").unwrap();
-    let resource = ["ip"];
-    let mut request = endpoint.get(&resource);
+    let mut request = endpoint.get(vec!["ip"]);
     request.headers().set(header::Connection::close());
     # }
     ```

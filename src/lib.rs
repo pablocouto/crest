@@ -27,8 +27,7 @@ fn main() {
     let endpoint = Endpoint::new("https://httpbin.org/").unwrap();
 
     // 2. Construct the request
-    let resource = ["status", "418"];
-    let request = endpoint.get(&resource);
+    let request = endpoint.get(vec!["status", "418"]);
 
     // 3. Perform the request
     let response = request.send().unwrap();
