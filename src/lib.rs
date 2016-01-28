@@ -66,7 +66,7 @@ use error::Result;
 use request::*;
 
 /**
-Handle for working with `Request`s.
+Handle for working with `Request`s. This is the main entry point to the library.
 */
 pub struct Endpoint {
     base: Url,
