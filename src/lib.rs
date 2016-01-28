@@ -92,21 +92,27 @@ impl Endpoint {
     /**
     Convenience function to create a `GET` request.
      */
-    pub fn get<'a>(&'a self, path: &'a [&'a str]) -> Get<'a> {
+    pub fn get<'a, P>(&'a self, path: P) -> Get<'a> where
+        P: IntoIterator<Item = &'a str>
+    {
         Get::new(self, path)
     }
 
     /**
     Convenience function to create a `POST` request.
      */
-    pub fn post<'a>(&'a self, path: &'a [&'a str]) -> Post<'a> {
+    pub fn post<'a, P>(&'a self, path: P) -> Post<'a> where
+        P: IntoIterator<Item = &'a str>
+    {
         Post::new(self, path)
     }
 
     /**
     Convenience function to create a `DELETE` request.
      */
-    pub fn delete<'a>(&'a self, path: &'a [&'a str]) -> Delete<'a> {
+    pub fn delete<'a, P>(&'a self, path: P) -> Delete<'a>  where
+        P: IntoIterator<Item = &'a str>
+    {
         Delete::new(self, path)
     }
 }

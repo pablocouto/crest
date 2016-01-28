@@ -22,10 +22,13 @@ use Endpoint;
 macro_rules! impl_Request {
     ($ty: ident, $method: ident) => (
         impl<'a> Request<'a> for $ty<'a> {
-            fn new(
+            fn new<P>(
                 endpoint: &'a Endpoint,
-                path: &'a [&'a str],
-            ) -> Self {
+                path: P,
+            ) -> Self where
+                P: IntoIterator<Item = &'a str>
+            {
+                let path = path.into_iter().collect();
                 let data = Data {
                     path: path,
                     headers: Headers::new(),
@@ -76,10 +79,11 @@ pub trait Request<'a> {
     let resource = &["status", "418"];
     ```
      */
-    fn new(
+    fn new<P>(
         endpoint: &'a Endpoint,
-        path: &'a [&'a str],
-    ) -> Self;
+        path: P,
+    ) -> Self where
+        P: IntoIterator<Item = &'a str>;
 
     /**
     Gives a mutable reference to the `Headers` inside a `Request`.
@@ -118,7 +122,7 @@ pub trait Body<'a> where
 }
 
 struct Data<'a> {
-    path: &'a [&'a str],
+    path: Vec<&'a str>,
     headers: Headers,
     body: Option<&'a str>,
 }
