@@ -99,15 +99,8 @@ impl Endpoint {
     /**
     Convenience function to create a `POST` request.
      */
-    pub fn post<'a>(
-        &'a self,
-        path: &'a [&'a str],
-        body: &'a str,
-    ) -> Post<'a> {
-        let mut request = Post::new(self, path);
-        request.body(body);
-
-        request
+    pub fn post<'a>(&'a self, path: &'a [&'a str]) -> Post<'a> {
+        Post::new(self, path)
     }
 
     /**
