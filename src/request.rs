@@ -15,6 +15,7 @@ REST requests.
 
 use hyper::header::Headers;
 use hyper::client::Response;
+use url::Url;
 
 use error::Result;
 use Endpoint;
@@ -28,9 +29,10 @@ macro_rules! impl_Request {
             ) -> Self where
                 P: IntoIterator<Item = &'a str>
             {
-                let path = path.into_iter().collect();
+                let path = path.into_iter().collect::<Vec<_>>().join("/");
+                let url = endpoint.base.join(&path).unwrap();
                 let data = Data {
-                    path: path,
+                    url: url,
                     headers: Headers::new(),
                     body: None,
                 };
@@ -46,11 +48,8 @@ macro_rules! impl_Request {
             }
 
             fn send(self) -> Result<Response> {
-                let path = self.data.path.join("/");
-                let url = self.endpoint.base.join(&path).unwrap();
-
                 let mut request = self.endpoint.client
-                    .$method(url)
+                    .$method(self.data.url)
                     .headers(self.data.headers);
 
                 if self.data.body.is_some() {
@@ -121,7 +120,7 @@ pub trait Body<'a> where
 }
 
 struct Data<'a> {
-    path: Vec<&'a str>,
+    url: Url,
     headers: Headers,
     body: Option<&'a str>,
 }
