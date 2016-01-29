@@ -92,7 +92,7 @@ pub trait Request<'a> {
     `/status/418` can be referenced like this:
 
     ```
-    let resource = &["status", "418"];
+    let resource = vec!["status", "418"];
     ```
      */
     fn new<P>(
@@ -102,7 +102,16 @@ pub trait Request<'a> {
         P: IntoIterator<Item = &'a str>;
 
     /**
-    Updates the parameters in the HTTP query.
+    Appends the passed parameters to the HTTP query.
+
+    Parameters may, for example, be stored like this:
+
+    ```
+    let params = vec![
+        ("param1", "value1"),
+        ("param2", "value2"),
+    ];
+    ```
      */
     fn parameters<P>(&mut self, params: P) where
         P: IntoIterator<Item = (&'a str, &'a str)>;
@@ -116,11 +125,12 @@ pub trait Request<'a> {
     # extern crate hyper;
     # extern crate crest;
     use hyper::header;
-    use crest::prelude::*;
+    # use crest::prelude::*;
 
     # fn main() {
-    let endpoint = Endpoint::new("https://httpbin.org/").unwrap();
-    let mut request = endpoint.get(vec!["ip"]);
+    # let endpoint = Endpoint::new("https://httpbin.org/").unwrap();
+    # let mut request = endpoint.get(vec!["ip"]);
+    // assuming a declared `request`
     request.headers().set(header::Connection::close());
     # }
     ```

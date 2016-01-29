@@ -16,6 +16,9 @@ _Crest_ is a REST client library built upon [Hyper](http://hyper.rs/).
 
 ## Making a `GET` request
 
+The following code constructs a `GET` request, based on the API at
+`https://httpbin.org/`, for a resource at `/status/418`.
+
 ```
 extern crate hyper;
 extern crate crest;
