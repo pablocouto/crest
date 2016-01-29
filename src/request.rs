@@ -26,21 +26,22 @@ macro_rules! impl_Request {
             fn new<P>(
                 endpoint: &'a Endpoint,
                 path: P,
-            ) -> Self where
-                P: IntoIterator<Item = &'a str>
+            ) -> Result<Self> where
+                P: IntoIterator<Item = &'a str>,
+                Self: Sized
             {
                 let path = path.into_iter().collect::<Vec<_>>().join("/");
-                let url = endpoint.base.join(&path).unwrap();
+                let url = try!(endpoint.base.join(&path));
                 let data = Data {
                     url: url,
                     headers: None,
                     body: None,
                 };
 
-                $ty {
+                Ok($ty {
                     endpoint: endpoint,
                     data: data,
-                }
+                })
             }
 
             fn parameters<P>(&mut self, params: P) where
@@ -105,8 +106,9 @@ pub trait Request<'a> {
     fn new<P>(
         endpoint: &'a Endpoint,
         path: P,
-    ) -> Self where
-        P: IntoIterator<Item = &'a str>;
+    ) -> Result<Self> where
+        P: IntoIterator<Item = &'a str>,
+        Self: Sized;
 
     /**
     Appends the passed parameters to the HTTP query.
