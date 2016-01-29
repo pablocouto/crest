@@ -77,8 +77,7 @@ macro_rules! impl_Request {
                     request = request.headers(headers);
                 }
 
-                if self.data.body.is_some() {
-                    let body = self.data.body.unwrap();
+                if let Some(body) = self.data.body {
                     request = request.body(body);
                 }
 
