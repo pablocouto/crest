@@ -164,6 +164,7 @@ pub trait Body<'a> where
     fn body(&mut self, body: &'a str);
 }
 
+#[derive(Debug)]
 struct Data<'a> {
     url: Url,
     headers: Option<Headers>,
@@ -173,6 +174,7 @@ struct Data<'a> {
 /**
 Contains the response to a REST request.
  */
+#[derive(Debug)]
 pub struct Response {
     inner: HyperResponse,
 }
@@ -180,6 +182,7 @@ pub struct Response {
 /**
 A `GET` request.
  */
+#[derive(Debug)]
 pub struct Get<'a> {
     endpoint: &'a Endpoint,
     data: Data<'a>,
@@ -190,6 +193,7 @@ impl_Request!(Get, get);
 /**
 A `POST` request.
  */
+#[derive(Debug)]
 pub struct Post<'a> {
     endpoint: &'a Endpoint,
     data: Data<'a>,
@@ -206,6 +210,7 @@ impl<'a> Body<'a> for Post<'a> {
 /**
 A `DELETE` request.
  */
+#[derive(Debug)]
 pub struct Delete<'a> {
     endpoint: &'a Endpoint,
     data: Data<'a>,

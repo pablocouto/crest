@@ -61,6 +61,8 @@ pub mod prelude {
 pub mod error;
 pub mod request;
 
+use std::fmt;
+
 use hyper::client::Client;
 use url::Url;
 
@@ -73,6 +75,16 @@ Handle for working with `Request`s. This is the main entry point to the library.
 pub struct Endpoint {
     base: Url,
     client: Client,
+}
+
+impl fmt::Debug for Endpoint {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let client_ptr = &self.client as *const Client;
+        f.debug_struct("Endpoint")
+            .field("base", &self.base)
+            .field("client as *const", &client_ptr)
+            .finish()
+    }
 }
 
 impl Endpoint {
