@@ -43,6 +43,23 @@ macro_rules! impl_Request {
                 }
             }
 
+            fn parameters<P>(&mut self, params: P) where
+                P: IntoIterator<Item = (&'a str, &'a str)>
+            {
+                let mut params = params.into_iter()
+                    .map(|(x, y)| (x.into(), y.into()))
+                    .collect();
+
+                let new_params;
+                if let Some(mut found_params) = self.data.url.query_pairs() {
+                    found_params.append(&mut params);
+                    new_params = found_params
+                } else {
+                    new_params = params
+                };
+                self.data.url.set_query_from_pairs(new_params);
+            }
+
             fn headers(&mut self) -> &mut Headers {
                 &mut self.data.headers
             }
@@ -83,6 +100,12 @@ pub trait Request<'a> {
         path: P,
     ) -> Self where
         P: IntoIterator<Item = &'a str>;
+
+    /**
+    Updates the parameters in the HTTP query.
+     */
+    fn parameters<P>(&mut self, params: P) where
+        P: IntoIterator<Item = (&'a str, &'a str)>;
 
     /**
     Gives a mutable reference to the `Headers` inside a `Request`.
