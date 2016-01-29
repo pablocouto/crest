@@ -14,10 +14,13 @@ REST requests.
 */
 
 use hyper::header::Headers;
-use hyper::client::Response;
+use hyper::client::Response as HyperResponse;
 use url::Url;
 
-use error::Result;
+use error::{
+    Error,
+    Result,
+};
 use Endpoint;
 
 macro_rules! impl_Request {
@@ -82,11 +85,11 @@ macro_rules! impl_Request {
                     request = request.body(body);
                 }
 
-                let response = request
+                let response = try!(request
                     .send()
-                    .map_err(From::from);
+                    .map_err::<Error, _>(From::from));
 
-                response
+                Ok(Response { inner: response })
             }
         }
     )
@@ -165,6 +168,13 @@ struct Data<'a> {
     url: Url,
     headers: Option<Headers>,
     body: Option<&'a str>,
+}
+
+/**
+Contains the response to a REST request.
+ */
+pub struct Response {
+    inner: HyperResponse,
 }
 
 /**
