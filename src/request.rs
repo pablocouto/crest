@@ -33,7 +33,7 @@ macro_rules! impl_Request {
                 let url = endpoint.base.join(&path).unwrap();
                 let data = Data {
                     url: url,
-                    headers: Headers::new(),
+                    headers: None,
                     body: None,
                 };
 
@@ -61,13 +61,21 @@ macro_rules! impl_Request {
             }
 
             fn headers(&mut self) -> &mut Headers {
-                &mut self.data.headers
+                if let Some(ref mut headers) = self.data.headers {
+                    headers
+                } else {
+                    self.data.headers = Some(Headers::new());
+                    self.data.headers.as_mut().unwrap()
+                }
             }
 
             fn send(self) -> Result<Response> {
                 let mut request = self.endpoint.client
-                    .$method(self.data.url)
-                    .headers(self.data.headers);
+                    .$method(self.data.url);
+
+                if let Some(headers) = self.data.headers {
+                    request = request.headers(headers);
+                }
 
                 if self.data.body.is_some() {
                     let body = self.data.body.unwrap();
@@ -154,7 +162,7 @@ pub trait Body<'a> where
 
 struct Data<'a> {
     url: Url,
-    headers: Headers,
+    headers: Option<Headers>,
     body: Option<&'a str>,
 }
 
