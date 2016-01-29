@@ -13,6 +13,8 @@ distributed except according to those terms.
 REST requests.
 */
 
+use std::ops::{Deref, DerefMut};
+
 use hyper::header::Headers;
 use hyper::client::Response as HyperResponse;
 use url::Url;
@@ -177,6 +179,20 @@ Contains the response to a REST request.
 #[derive(Debug)]
 pub struct Response {
     inner: HyperResponse,
+}
+
+impl Deref for Response {
+    type Target = HyperResponse;
+
+    fn deref(&self) -> &Self::Target {
+        &self.inner
+    }
+}
+
+impl DerefMut for Response {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.inner
+    }
 }
 
 /**
