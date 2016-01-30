@@ -126,7 +126,7 @@ pub trait Request<'a> {
     /**
     Appends the passed parameters to the HTTP query.
 
-    Parameters may, for example, be stored like this:
+    Parameters may be stored like this:
 
     ```
     let params = vec![
@@ -165,7 +165,7 @@ pub trait Request<'a> {
     fn send(self) -> Result<Response>;
 
     /**
-    Convenience function to perform a request, and deserialize its response.
+    Convenience function to perform a request, deserializing its response.
      */
     fn send_and_into<T>(self) -> Result<T> where
         T: Deserialize;

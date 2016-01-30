@@ -31,6 +31,7 @@ Note that deserialization is performed by
 extern crate crest;
 extern crate serde;
 
+use std::io::Error;
 use crest::prelude::*;
 
 # include!(concat!(env!("OUT_DIR"), "/type.rs.out"));
@@ -40,21 +41,25 @@ struct HttpbinIP {
     origin: String,
 }
 
-fn main() {
+fn example() -> Result<HttpbinIP, Error> {
     // 1. Construct the endpoint off a base URL
-    let endpoint = Endpoint::new("https://httpbin.org/").unwrap();
+    let endpoint = try!(Endpoint::new("https://httpbin.org/"));
 
     // 2. Construct the request
-    let request = endpoint.get(vec!["ip"]).unwrap();
+    let request = try!(endpoint.get(vec!["ip"]));
 
     // 3. Perform the request
-    let response = request.send().unwrap();
+    let response = try!(request.send());
 
     // 4. Deserialize the response
-    let ip: HttpbinIP = response.into().unwrap();
-    # let ip = ip.origin.parse::<::std::net::Ipv4Addr>();
-    # assert!(ip.is_ok());
+    let ip = try!(response.into::<HttpbinIP>());
+    # let ip_ = ip.origin.parse::<::std::net::Ipv4Addr>();
+    # assert!(ip_.is_ok());
+
+    Ok(ip)
 }
+
+# fn main() { example().unwrap(); }
 ```
 !*/
 
@@ -65,7 +70,7 @@ extern crate url;
 
 pub mod prelude {
     /*!
-    To ease getting _Crest_’s main entities into scope.
+    To ease getting Crest’s main entities into scope.
 
     ```
     use crest::prelude::*;
