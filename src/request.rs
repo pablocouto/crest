@@ -16,7 +16,6 @@ REST requests.
 use std::ops::{Deref, DerefMut};
 
 use hyper::header::Headers;
-use hyper::client::Response as HyperResponse;
 use serde::de::Deserialize;
 use serde_json;
 use url::Url;
@@ -180,11 +179,11 @@ Contains the response to a REST request.
  */
 #[derive(Debug)]
 pub struct Response {
-    inner: HyperResponse,
+    inner: ::hyper::client::Response,
 }
 
 impl Deref for Response {
-    type Target = HyperResponse;
+    type Target = ::hyper::client::Response;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
