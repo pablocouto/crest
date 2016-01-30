@@ -11,12 +11,17 @@ license = "Apache-2.0/MIT"
 
 build = "build/build.rs"
 
+[features]
+default = ["serde_codegen", "syntex"]
+nightly = ["serde_macros"]
+
 [build-dependencies]
-serde_codegen = "0.6"
-syntex = "0.26"
+serde_codegen = { version = "0.6", optional = true }
+syntex = { version = "0.26", optional = true }
 
 [dependencies]
 hyper = "0.7"
 serde = "0.6"
 serde_json = "0.6"
+serde_macros = { version = "0.6", optional = true }
 url = "0.5"
