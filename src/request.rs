@@ -94,6 +94,13 @@ macro_rules! impl_Request {
 
                 Ok(Response { inner: response })
             }
+
+            fn send_and_into<T>(self) -> Result<T> where
+                T: Deserialize
+            {
+                let response = try!(self.send());
+                response.into()
+            }
         }
     )
 }
@@ -156,6 +163,12 @@ pub trait Request<'a> {
     Performs the request.
      */
     fn send(self) -> Result<Response>;
+
+    /**
+    Convenience function to perform a request, and deserialize its response.
+     */
+    fn send_and_into<T>(self) -> Result<T> where
+        T: Deserialize;
 }
 
 pub trait Body<'a> where
