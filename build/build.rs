@@ -1,4 +1,4 @@
-#[cfg(default)]
+#[cfg(not(feature = "nightly"))]
 fn main() {
     extern crate syntex;
     extern crate serde_codegen;
@@ -6,18 +6,16 @@ fn main() {
     use std::env;
     use std::path::Path;
 
-    pub fn main() {
-        let out_dir = env::var_os("OUT_DIR").unwrap();
+    let out_dir = env::var_os("OUT_DIR").unwrap();
 
-        let src = Path::new("build/type.rs.in");
-        let dst = Path::new(&out_dir).join("type.rs.out");
+    let src = Path::new("build/type.rs.in");
+    let dst = Path::new(&out_dir).join("type.rs.out");
 
-        let mut registry = syntex::Registry::new();
+    let mut registry = syntex::Registry::new();
 
-        serde_codegen::register(&mut registry);
-        registry.expand("", &src, &dst).unwrap();
-    }
+    serde_codegen::register(&mut registry);
+    registry.expand("", &src, &dst).unwrap();
 }
 
-#[cfg(not(default))]
+#[cfg(feature = "nightly")]
 fn main() {}
