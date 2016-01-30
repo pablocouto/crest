@@ -31,7 +31,7 @@ Note that deserialization is performed by
 extern crate crest;
 extern crate serde;
 
-use std::io::Error;
+use crest::error::Error;
 use crest::prelude::*;
 
 # include!(concat!(env!("OUT_DIR"), "/type.rs.out"));
