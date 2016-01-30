@@ -9,6 +9,12 @@ documentation = "https://pablocouto.github.io/crest/crest/index.html"
 keywords = ["rest", "client"]
 license = "Apache-2.0/MIT"
 
+build = "build/build.rs"
+
+[build-dependencies]
+serde_codegen = "0.6"
+syntex = "0.26"
+
 [dependencies]
 hyper = "0.7"
 serde = "0.6"

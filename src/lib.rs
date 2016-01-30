@@ -7,35 +7,50 @@ or the MIT license <LICENSE-MIT>, at your option. All files in
 the project carrying such notice may not be copied, modified, or
 distributed except according to those terms.
 
-*/
+ */
 
 /*!
 _Crest_ is a REST client library built upon [Hyper](http://hyper.rs/).
 
 # Usage
 
-## Making a `GET` request
+## Making a `GET` request and deserializing the response
 
-The following code constructs a `GET` request, based on the API at
-`https://httpbin.org/`, for a resource at `/status/418`.
+The following code first constructs a `GET` request for a resource at
+`https://httpbin.org/ip`, and then deserializes the response (in JSON format)
+into a custom type.
+
+Note that deserialization is performed by _serde_; for more information on how
+to derive `Deserialize` for custom types, refer to _serde_
+[documentation](https://github.com/serde-rs/serde).
 
 ```
-extern crate hyper;
 extern crate crest;
+extern crate serde;
 
 use crest::prelude::*;
+
+# include!(concat!(env!("OUT_DIR"), "/type.rs.out"));
+# #[cfg(none)]
+#[derive(Debug, Deserialize)]
+struct HttpbinIP {
+    origin: String,
+}
 
 fn main() {
     // 1. Construct the endpoint off a base URL
     let endpoint = Endpoint::new("https://httpbin.org/").unwrap();
 
     // 2. Construct the request
-    let request = endpoint.get(vec!["status", "418"]).unwrap();
+    let request = endpoint.get(vec!["ip"]).unwrap();
 
     // 3. Perform the request
     let response = request.send().unwrap();
 
-    assert_eq!(response.status, ::hyper::status::StatusCode::ImATeapot);
+    // 4. Deserialize the response
+    let ip: HttpbinIP = response.into().unwrap();
+    # let ip = ip.origin.parse::<::std::net::Ipv4Addr>();
+    # assert!(ip.is_ok());
 }
 ```
 !*/
