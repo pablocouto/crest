@@ -41,6 +41,8 @@ fn main() {
 !*/
 
 extern crate hyper;
+extern crate serde;
+extern crate serde_json;
 extern crate url;
 
 pub mod prelude {

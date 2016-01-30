@@ -14,11 +14,13 @@ use std::error::Error as StdError;
 use std::fmt;
 
 use hyper::error::Error as HyperError;
+use serde_json::error::Error as SerdeJsonError;
 use url::ParseError as UrlParseError;
 
 #[derive(Debug)]
 pub enum Error {
     Hyper(HyperError),
+    SerdeJson(SerdeJsonError),
     Url(UrlParseError),
 }
 
@@ -32,6 +34,7 @@ impl StdError for Error {
     fn description(&self) -> &str {
         match *self {
             Error::Hyper(ref e) => e.description(),
+            Error::SerdeJson(ref e) => e.description(),
             Error::Url(ref e) => e.description(),
         }
     }
@@ -42,6 +45,12 @@ pub type Result<T> = ::std::result::Result<T, Error>;
 impl From<UrlParseError> for Error {
     fn from(e: UrlParseError) -> Error {
         Error::Url(e)
+    }
+}
+
+impl From<SerdeJsonError> for Error {
+    fn from(e: SerdeJsonError) -> Error {
+        Error::SerdeJson(e)
     }
 }
 

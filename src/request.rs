@@ -17,6 +17,8 @@ use std::ops::{Deref, DerefMut};
 
 use hyper::header::Headers;
 use hyper::client::Response as HyperResponse;
+use serde::de::Deserialize;
+use serde_json;
 use url::Url;
 
 use error::{
@@ -192,6 +194,21 @@ impl Deref for Response {
 impl DerefMut for Response {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.inner
+    }
+}
+
+impl Response {
+    /**
+    Deserializes `Response` into `T`.
+
+    This method assumes that the underlying data in `Response` abides by the
+    JSON format.
+     */
+    pub fn into<T>(self) -> Result<T> where
+        T: Deserialize
+    {
+        serde_json::from_reader(self.inner)
+            .map_err(From::from)
     }
 }
 
