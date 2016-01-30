@@ -12,6 +12,8 @@ distributed except according to those terms.
 /*!
 _Crest_ is a REST client library built upon [Hyper](http://hyper.rs/).
 
+Its repository can be found [here](https://github.com/pablocouto/crest/).
+
 # Usage
 
 ## Making a `GET` request and deserializing the response
@@ -20,8 +22,9 @@ The following code first constructs a `GET` request for a resource at
 `https://httpbin.org/ip`, and then deserializes the response (in JSON format)
 into a custom type.
 
-Note that deserialization is performed by _serde_; for more information on how
-to derive `Deserialize` for custom types, refer to _serde_
+Note that deserialization is performed by
+[serde](https://crates.io/crates/serde/); for more information on how to derive
+`Deserialize` for custom types, refer to serde
 [documentation](https://github.com/serde-rs/serde).
 
 ```
