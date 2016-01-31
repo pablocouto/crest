@@ -23,16 +23,12 @@ before_script:
     export PATH=$HOME/.local/bin:$PATH
 
 script:
-  - |
-    travis-cargo build &&
-    travis-cargo test &&
-    travis-cargo bench &&
-    travis-cargo --only stable doc
+  - build/travis.sh
 
 after_success:
   - travis-cargo --only stable doc-upload
 
 env:
   global:
-    - TRAVIS_CARGO_NIGHTLY_FEATURE=""
+    - TRAVIS_CARGO_NIGHTLY_FEATURE="nightly"
     - secure: zc/w+CWuM9o/CZSXM8RJjaSwEAdq8jW4VzmsTId3MQU4sG5sYuQMKaiLPtxjjKK/pq+MSUmdCzNrKEHR9I/kB2jGJq7LclRQAv2MgddCj/gRAo2MlNkG4+20RdTelgtJbiKSlC8XIzU++ppht9Sd6+c1Wo5W550Fsg7G93cEvm/+HwvNNguUAWlqE2pkV5sLYK+AiQfy3wWW9eFi5dgd8dajbDZ0Nfg5pWU+h+GoIT66lQW0gF5fzDtCpSf9tZsoggto8EMo0QkqIbHek9ZaQJ2kxA+PynGhcbP2QCf8SPZIvwYIQe5n32eyIae7w5Qrv+T68MI+iTByWPX9gU/+Cpl/S+4fBOxe7mC9ici24WgVGj22IfmE/vHDRz1cMmR3LL1ylaksudc0G9lRBXKJ9Kw5JRW5UNyEC8yjWgB89JthSYmjdxadFP39C+5ODEUBWrksUzLhlv5mYOn9t0QIFHV1ULZzcRcSIs696o7bJtdbzT/7IoxlDhaU1gKh20wMAodlC19nMVPEE43Yfl3wrU7LVVqdK741vpPfuIAir94uD5ugqYckHeC2ioYij1PZfEsR0Az9iHgcsSBLEOajCuc/q2dMxjdcx3R/ZWNqoFnfPbq4c0aJxPt8ZpoKFLSWqbqUwtWYCPtLwlL0azibyNyXNJI/Y4BdNWMayb47kAY=
