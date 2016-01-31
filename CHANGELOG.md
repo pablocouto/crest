@@ -4,6 +4,19 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.3.0] - 2016-01-31
+### Added
+- Support for deserialization from JSON responses
+- Support for setting the parameters of a request
+- `prelude` module
+### Changed
+- `Result` is passed up at `Request` creation
+- Improved documentation
+- `path` and `params` arguments accept more types
+- `Endpoint::post` method does not require a body anymore
+### Fixed
+- Added missing `Debug` impls
+
 ## [0.2.0] - 2016-01-25
 ### Added
 - Traits to specify functionality according to request type
