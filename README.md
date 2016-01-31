@@ -13,13 +13,13 @@ It is currently experimental, and incomplete. Pull requests are welcome.
 _Crest_ is available from Cargo. If you are using stable Rust, add this to
 `[dependencies]` in `Cargo.toml`:
 
-```
+```toml
 crest = "0.3"
 ```
 
 If you are using nightly Rust, this is needed instead:
 
-```
+```toml
 [dependencies.crest]
 version = "0.3"
 default-features = false
