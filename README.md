@@ -10,16 +10,28 @@ It is currently experimental, and incomplete. Pull requests are welcome.
 
 # Installation
 
-_Crest_ is available from Cargo. Simply add this to `[dependencies]` in `Cargo.toml`:
+_Crest_ is available from Cargo. If you are using stable Rust, add this to
+`[dependencies]` in `Cargo.toml`:
 
 ```
-crest = "0.2"
+crest = "0.3"
+```
+
+If you are using nightly Rust, this is needed instead:
+
+```
+[dependencies.crest]
+version = "0.3"
+default-features = false
+features = ["nightly"]
 ```
 
 # Usage
 
-Documentation is available [here](https://pablocouto.github.io/crest/crest/index.html).
+Documentation is available
+[here](https://pablocouto.github.io/crest/crest/index.html).
 
 # License
 
-_Crest_ is licensed under the Apache License, Version 2.0 (see `LICENSE-APACHE`) or the MIT license (see `LICENSE-MIT`), at your option.
+_Crest_ is licensed under the Apache License, Version 2.0 (see `LICENSE-APACHE`)
+or the MIT license (see `LICENSE-MIT`), at your option.
