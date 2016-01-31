@@ -19,7 +19,7 @@ Its repository can be found [here](https://github.com/pablocouto/crest/).
 ## Making a `GET` request and deserializing the response
 
 The following code first constructs a `GET` request for a resource at
-`https://httpbin.org/ip`, and then deserializes the response (in JSON format)
+`https://httpbin.org/ip`, and then deserializes the response – in JSON format –
 into a custom type.
 
 Note that deserialization is performed by
@@ -34,7 +34,7 @@ Note that deserialization is performed by
 extern crate crest;
 extern crate serde;
 
-use crest::error::Error;
+use crest::error::Result;
 use crest::prelude::*;
 
 # #[cfg(not(feature = "nightly"))]
@@ -46,7 +46,7 @@ struct HttpbinIP {
     origin: String,
 }
 
-fn example() -> Result<HttpbinIP, Error> {
+fn example() -> Result<HttpbinIP> {
     // 1. Construct the endpoint off a base URL
     let endpoint = try!(Endpoint::new("https://httpbin.org/"));
 

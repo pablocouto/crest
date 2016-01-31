@@ -11,7 +11,7 @@ distributed except according to those terms.
 
 /*!
 REST requests.
-*/
+ */
 
 use std::ops::{Deref, DerefMut};
 
@@ -213,8 +213,8 @@ impl Response {
     /**
     Deserializes `Response` into `T`.
 
-    This method assumes that the underlying data in `Response` abides by the
-    JSON format.
+    This method assumes that the underlying data in `Response` is in JSON
+    format.
      */
     pub fn into<T>(self) -> Result<T> where
         T: Deserialize
