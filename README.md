@@ -8,6 +8,14 @@ _Crest_ is a REST client library, written in Rust.
 
 It is currently experimental, and incomplete. Pull requests are welcome.
 
+# Installation
+
+_Crest_ is available from Cargo. Simply add this to `[dependencies]` in `Cargo.toml`:
+
+```
+crest = "0.2"
+```
+
 # Usage
 
 Documentation is available [here](https://pablocouto.github.io/crest/crest/index.html).
