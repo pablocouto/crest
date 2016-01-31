@@ -11,6 +11,10 @@ license = "Apache-2.0/MIT"
 
 build = "build/build.rs"
 
+exclude = [
+    "build/travis.sh",
+]
+
 [features]
 default = ["serde_codegen"]
 nightly = ["serde_macros"]
