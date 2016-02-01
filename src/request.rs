@@ -71,15 +71,6 @@ macro_rules! impl_Request {
                 self.data.url.set_query_from_pairs(new_params);
             }
 
-            fn headers(&mut self) -> &mut Headers {
-                if let Some(ref mut headers) = self.data.headers {
-                    headers
-                } else {
-                    self.data.headers = Some(Headers::new());
-                    self.data.headers.as_mut().unwrap()
-                }
-            }
-
             fn send(self) -> Result<Response> {
                 let body;
 
@@ -166,7 +157,15 @@ pub trait Request<'a> {
     # }
     ```
      */
-    fn headers(&mut self) -> &mut Headers;
+    fn headers(&mut self) -> &mut Headers {
+        let data = self.get_mut_data();
+        if let Some(ref mut headers) = data.headers {
+            headers
+        } else {
+            data.headers = Some(Headers::new());
+            data.headers.as_mut().unwrap()
+        }
+    }
 
     /**
     Performs the request.
