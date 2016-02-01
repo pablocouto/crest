@@ -202,7 +202,7 @@ pub trait Request<'a>: Sized {
                             .send()
                             .map_err::<Error, _>(From::from));
 
-        Ok(Response { inner: response })
+        Ok(Response(response))
     }
 
     /**
@@ -243,21 +243,19 @@ pub struct Data {
 Stores the response to a REST request.
  */
 #[derive(Debug)]
-pub struct Response {
-    inner: ::hyper::client::Response,
-}
+pub struct Response(::hyper::client::Response);
 
 impl Deref for Response {
     type Target = ::hyper::client::Response;
 
     fn deref(&self) -> &Self::Target {
-        &self.inner
+        &self.0
     }
 }
 
 impl DerefMut for Response {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.inner
+        &mut self.0
     }
 }
 
@@ -271,7 +269,7 @@ impl Response {
     pub fn into<T>(self) -> Result<T> where
         T: Deserialize
     {
-        serde_json::from_reader(self.inner)
+        serde_json::from_reader(self.0)
             .map_err(From::from)
     }
 }
