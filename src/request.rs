@@ -68,22 +68,27 @@ macro_rules! fn_new {
 macro_rules! impl_Request {
     ($ty: ident) => (
         impl<'a> Request<'a> for $ty<'a> {
+            #[doc(hidden)]
             fn get_client(&self) -> &Client {
                 &self.endpoint.client
             }
 
+            #[doc(hidden)]
             fn get_method(&self) -> &Method {
                 &self.method
             }
 
+            #[doc(hidden)]
             fn get_url(&self) -> Url {
                 self.data.url.clone()
             }
 
+            #[doc(hidden)]
             fn get_mut_data(&mut self) -> &mut Data {
                 &mut self.data
             }
 
+            #[doc(hidden)]
             fn get_owned_data(self) -> Data {
                 self.data
             }
@@ -91,6 +96,9 @@ macro_rules! impl_Request {
     )
 }
 
+/**
+Affords default request functionality.
+ */
 pub trait Request<'a> {
     #[doc(hidden)] fn get_client(&self) -> &Client;
     #[doc(hidden)] fn get_method(&self) -> &Method;
@@ -208,6 +216,9 @@ pub trait Request<'a> {
     }
 }
 
+/**
+Affords setting the body for requests with body semantics.
+ */
 pub trait Body<'a>: Request<'a> {
     /**
     Sets the body of a `Request`.
