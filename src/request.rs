@@ -31,7 +31,7 @@ use Endpoint;
 macro_rules! fn_new {
     ($ty: ident) => (
         /**
-        Constructs a REST request from a given `Endpoint`.
+        Constructs the request from a given `Endpoint`.
 
         The `path` argument locates a REST resource; for example, a resource at
         `/status/418` can be represented like this:
