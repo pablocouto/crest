@@ -92,6 +92,11 @@ macro_rules! impl_Request {
 }
 
 pub trait Request<'a> {
+    #[doc(hidden)] fn get_client(&self) -> &Client;
+    #[doc(hidden)] fn get_method(&self) -> &Method;
+    #[doc(hidden)] fn get_url(&self) -> Url;
+    #[doc(hidden)] fn get_mut_data(&mut self) -> &mut Data;
+    #[doc(hidden)] fn get_owned_data(self) -> Data;
 
     /**
     Appends the passed parameters to the HTTP query.
