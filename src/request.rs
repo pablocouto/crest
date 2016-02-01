@@ -50,6 +50,10 @@ macro_rules! impl_Request {
                 })
             }
 
+            fn get_mut_data(&mut self) -> &mut Data {
+                &mut self.data
+            }
+
             fn parameters<P>(&mut self, params: P) where
                 P: IntoIterator<Item = (&'a str, &'a str)>
             {
@@ -125,6 +129,8 @@ pub trait Request<'a> {
     ) -> Result<Self> where
         P: IntoIterator<Item = &'a str>,
         Self: Sized;
+
+    fn get_mut_data(&mut self) -> &mut Data;
 
     /**
     Appends the passed parameters to the HTTP query.
