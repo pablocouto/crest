@@ -96,6 +96,12 @@ macro_rules! impl_Request {
     )
 }
 
+macro_rules! impl_Body {
+    ($ty: ident) => (
+        impl<'a> Body<'a> for $ty<'a> {}
+    )
+}
+
 /**
 Affords default request functionality.
  */
@@ -303,6 +309,7 @@ pub struct Post<'a> {
 }
 
 impl_Request!(Post);
+impl_Body!(Post);
 
 impl<'a> Post<'a> {
     fn_new!(Post);
