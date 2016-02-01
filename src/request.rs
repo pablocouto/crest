@@ -15,6 +15,7 @@ REST requests.
 
 use std::ops::{Deref, DerefMut};
 
+use hyper::client::Client;
 use hyper::header::Headers;
 use hyper::method::Method;
 use serde::de::Deserialize;
@@ -53,30 +54,24 @@ macro_rules! impl_Request {
                 })
             }
 
+            fn get_client(&self) -> &Client {
+                &self.endpoint.client
+            }
+
+            fn get_method(&self) -> &Method {
+                &self.method
+            }
+
+            fn get_url(&self) -> Url {
+                self.data.url.clone()
+            }
+
             fn get_mut_data(&mut self) -> &mut Data {
                 &mut self.data
             }
 
-            fn send(self) -> Result<Response> {
-                let body;
-
-                let mut request = self.endpoint.client
-                    .$method(self.data.url);
-
-                if let Some(headers) = self.data.headers {
-                    request = request.headers(headers);
-                }
-
-                if let Some(b) = self.data.body {
-                    body = b;
-                    request = request.body(&body);
-                }
-
-                let response = try!(request
-                    .send()
-                    .map_err::<Error, _>(From::from));
-
-                Ok(Response { inner: response })
+            fn get_owned_data(self) -> Data {
+                self.data
             }
 
             fn send_and_into<T>(self) -> Result<T> where
@@ -107,7 +102,11 @@ pub trait Request<'a> {
         P: IntoIterator<Item = &'a str>,
         Self: Sized;
 
+    fn get_client(&self) -> &Client;
+    fn get_method(&self) -> &Method;
+    fn get_url(&self) -> Url;
     fn get_mut_data(&mut self) -> &mut Data;
+    fn get_owned_data(self) -> Data;
 
     /**
     Appends the passed parameters to the HTTP query.
@@ -172,7 +171,39 @@ pub trait Request<'a> {
     /**
     Performs the request.
      */
-    fn send(self) -> Result<Response>;
+    fn send(self) -> Result<Response> where
+        Self: Sized
+    {
+        let body;
+
+        let client: &Client = unsafe { &*(self.get_client() as *const _) };
+        let method: Box<Fn(_) -> _> = match *self.get_method() {
+            Method::Get => Box::new(|x| client.get(x)),
+            Method::Post => Box::new(|x| client.post(x)),
+            Method::Delete => Box::new(|x| client.delete(x)),
+            _ => unimplemented!(),
+        };
+
+        let url = self.get_url();
+        let mut request = method(url);
+
+        let data = self.get_owned_data();
+
+        if let Some(headers) = data.headers {
+            request = request.headers(headers);
+        }
+
+        if let Some(b) = data.body {
+            body = b;
+            request = request.body(&body);
+        }
+
+        let response = try!(request
+                            .send()
+                            .map_err::<Error, _>(From::from));
+
+        Ok(Response { inner: response })
+    }
 
     /**
     Convenience function to perform a request, deserializing its response.
