@@ -77,6 +77,8 @@ macro_rules! impl_Request {
             }
 
             fn send(self) -> Result<Response> {
+                let body;
+
                 let mut request = self.endpoint.client
                     .$method(self.data.url);
 
@@ -84,8 +86,9 @@ macro_rules! impl_Request {
                     request = request.headers(headers);
                 }
 
-                if let Some(body) = self.data.body {
-                    request = request.body(body);
+                if let Some(b) = self.data.body {
+                    body = b;
+                    request = request.body(&body);
                 }
 
                 let response = try!(request
@@ -181,10 +184,10 @@ pub trait Body<'a> where
 }
 
 #[derive(Debug)]
-struct Data<'a> {
+pub struct Data {
     url: Url,
     headers: Option<Headers>,
-    body: Option<&'a str>,
+    body: Option<String>,
 }
 
 /**
@@ -230,7 +233,7 @@ A `GET` request.
 #[derive(Debug)]
 pub struct Get<'a> {
     endpoint: &'a Endpoint,
-    data: Data<'a>,
+    data: Data,
 }
 
 impl_Request!(Get, get);
@@ -241,14 +244,14 @@ A `POST` request.
 #[derive(Debug)]
 pub struct Post<'a> {
     endpoint: &'a Endpoint,
-    data: Data<'a>,
+    data: Data,
 }
 
 impl_Request!(Post, post);
 
 impl<'a> Body<'a> for Post<'a> {
     fn body(&mut self, body: &'a str) {
-        self.data.body = Some(body);
+        self.data.body = Some(body.into());
     }
 }
 
@@ -258,7 +261,7 @@ A `DELETE` request.
 #[derive(Debug)]
 pub struct Delete<'a> {
     endpoint: &'a Endpoint,
-    data: Data<'a>,
+    data: Data,
 }
 
 impl_Request!(Delete, delete);
