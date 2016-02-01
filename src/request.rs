@@ -16,6 +16,7 @@ REST requests.
 use std::ops::{Deref, DerefMut};
 
 use hyper::header::Headers;
+use hyper::method::Method;
 use serde::de::Deserialize;
 use serde_json;
 use url::Url;
@@ -38,6 +39,7 @@ macro_rules! impl_Request {
             {
                 let path = path.into_iter().collect::<Vec<_>>().join("/");
                 let url = try!(endpoint.base.join(&path));
+                let method = Method::$ty;
                 let data = Data {
                     url: url,
                     headers: None,
@@ -46,6 +48,7 @@ macro_rules! impl_Request {
 
                 Ok($ty {
                     endpoint: endpoint,
+                    method: method,
                     data: data,
                 })
             }
@@ -237,6 +240,7 @@ A `GET` request.
 #[derive(Debug)]
 pub struct Get<'a> {
     endpoint: &'a Endpoint,
+    method: Method,
     data: Data,
 }
 
@@ -248,6 +252,7 @@ A `POST` request.
 #[derive(Debug)]
 pub struct Post<'a> {
     endpoint: &'a Endpoint,
+    method: Method,
     data: Data,
 }
 
@@ -265,6 +270,7 @@ A `DELETE` request.
 #[derive(Debug)]
 pub struct Delete<'a> {
     endpoint: &'a Endpoint,
+    method: Method,
     data: Data,
 }
 
