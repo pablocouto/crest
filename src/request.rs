@@ -54,23 +54,6 @@ macro_rules! impl_Request {
                 &mut self.data
             }
 
-            fn parameters<P>(&mut self, params: P) where
-                P: IntoIterator<Item = (&'a str, &'a str)>
-            {
-                let mut params = params.into_iter()
-                    .map(|(x, y)| (x.into(), y.into()))
-                    .collect();
-
-                let new_params;
-                if let Some(mut found_params) = self.data.url.query_pairs() {
-                    found_params.append(&mut params);
-                    new_params = found_params
-                } else {
-                    new_params = params
-                };
-                self.data.url.set_query_from_pairs(new_params);
-            }
-
             fn send(self) -> Result<Response> {
                 let body;
 
@@ -136,7 +119,23 @@ pub trait Request<'a> {
     ```
      */
     fn parameters<P>(&mut self, params: P) where
-        P: IntoIterator<Item = (&'a str, &'a str)>;
+        P: IntoIterator<Item = (&'a str, &'a str)>
+    {
+        let data = self.get_mut_data();
+
+        let mut params = params.into_iter()
+            .map(|(x, y)| (x.into(), y.into()))
+            .collect();
+
+        let new_params;
+        if let Some(mut found_params) = data.url.query_pairs() {
+            found_params.append(&mut params);
+            new_params = found_params
+        } else {
+            new_params = params
+        };
+        data.url.set_query_from_pairs(new_params);
+    }
 
     /**
     Gives a mutable reference to the `Headers` inside a `Request`.
