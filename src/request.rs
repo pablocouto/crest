@@ -246,7 +246,7 @@ pub struct Data {
 }
 
 /**
-Contains the response to a REST request.
+Stores the response to a REST request.
  */
 #[derive(Debug)]
 pub struct Response {
