@@ -212,7 +212,9 @@ pub trait Body<'a>: Request<'a> {
     /**
     Sets the body of a `Request`.
      */
-    fn body(&mut self, body: &'a str);
+    fn body(&mut self, body: &'a str) {
+        self.get_mut_data().body = Some(body.into());
+    }
 }
 
 /**
@@ -293,12 +295,6 @@ impl_Request!(Post);
 
 impl<'a> Post<'a> {
     fn_new!(Post);
-}
-
-impl<'a> Body<'a> for Post<'a> {
-    fn body(&mut self, body: &'a str) {
-        self.data.body = Some(body.into());
-    }
 }
 
 /**
