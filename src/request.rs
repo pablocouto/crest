@@ -28,32 +28,46 @@ use error::{
 };
 use Endpoint;
 
+macro_rules! fn_new {
+    ($ty: ident) => (
+        /**
+        Constructs a REST request from a given `Endpoint`.
+
+        The `path` argument locates a REST resource; for example, a resource at
+        `/status/418` can be represented like this:
+
+        ```
+        let resource = vec!["status", "418"];
+        ```
+         */
+        pub fn new<P>(
+            endpoint: &'a Endpoint,
+            path: P,
+        ) -> Result<Self> where
+            P: IntoIterator<Item = &'a str>,
+        Self: Sized
+        {
+            let path = path.into_iter().collect::<Vec<_>>().join("/");
+            let url = try!(endpoint.base.join(&path));
+            let method = Method::$ty;
+            let data = Data {
+                url: url,
+                headers: None,
+                body: None,
+            };
+
+            Ok($ty {
+                endpoint: endpoint,
+                method: method,
+                data: data,
+            })
+        }
+    )
+}
+
 macro_rules! impl_Request {
-    ($ty: ident, $method: ident) => (
+    ($ty: ident) => (
         impl<'a> Request<'a> for $ty<'a> {
-            fn new<P>(
-                endpoint: &'a Endpoint,
-                path: P,
-            ) -> Result<Self> where
-                P: IntoIterator<Item = &'a str>,
-                Self: Sized
-            {
-                let path = path.into_iter().collect::<Vec<_>>().join("/");
-                let url = try!(endpoint.base.join(&path));
-                let method = Method::$ty;
-                let data = Data {
-                    url: url,
-                    headers: None,
-                    body: None,
-                };
-
-                Ok($ty {
-                    endpoint: endpoint,
-                    method: method,
-                    data: data,
-                })
-            }
-
             fn get_client(&self) -> &Client {
                 &self.endpoint.client
             }
@@ -78,28 +92,6 @@ macro_rules! impl_Request {
 }
 
 pub trait Request<'a> {
-    /**
-    Constructs a REST request from a given `Endpoint`.
-
-    The `path` argument locates a REST resource; for example, a resource at
-    `/status/418` can be referenced like this:
-
-    ```
-    let resource = vec!["status", "418"];
-    ```
-     */
-    fn new<P>(
-        endpoint: &'a Endpoint,
-        path: P,
-    ) -> Result<Self> where
-        P: IntoIterator<Item = &'a str>,
-        Self: Sized;
-
-    fn get_client(&self) -> &Client;
-    fn get_method(&self) -> &Method;
-    fn get_url(&self) -> Url;
-    fn get_mut_data(&mut self) -> &mut Data;
-    fn get_owned_data(self) -> Data;
 
     /**
     Appends the passed parameters to the HTTP query.
@@ -273,7 +265,11 @@ pub struct Get<'a> {
     data: Data,
 }
 
-impl_Request!(Get, get);
+impl_Request!(Get);
+
+impl<'a> Get<'a> {
+    fn_new!(Get);
+}
 
 /**
 A `POST` request.
@@ -285,7 +281,11 @@ pub struct Post<'a> {
     data: Data,
 }
 
-impl_Request!(Post, post);
+impl_Request!(Post);
+
+impl<'a> Post<'a> {
+    fn_new!(Post);
+}
 
 impl<'a> Body<'a> for Post<'a> {
     fn body(&mut self, body: &'a str) {
@@ -303,4 +303,8 @@ pub struct Delete<'a> {
     data: Data,
 }
 
-impl_Request!(Delete, delete);
+impl_Request!(Delete);
+
+impl<'a> Delete<'a> {
+    fn_new!(Delete);
+}
