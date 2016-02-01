@@ -150,6 +150,7 @@ pub trait Request<'a> {
      */
     fn headers(&mut self) -> &mut Headers {
         let data = self.get_mut_data();
+
         if let Some(ref mut headers) = data.headers {
             headers
         } else {
@@ -207,9 +208,7 @@ pub trait Request<'a> {
     }
 }
 
-pub trait Body<'a> where
-    Self: Request<'a>
-{
+pub trait Body<'a>: Request<'a> {
     /**
     Sets the body of a `Request`.
      */
