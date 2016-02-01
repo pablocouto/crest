@@ -64,33 +64,31 @@ macro_rules! fn_new {
     )
 }
 
-macro_rules! impl_Request {
+macro_rules! impl_Request_accessors {
     ($ty: ident) => (
-        impl<'a> Request<'a> for $ty<'a> {
-            #[doc(hidden)]
-            fn get_client(&self) -> &Client {
-                &self.endpoint.client
-            }
+        #[doc(hidden)]
+        fn get_client(&self) -> &Client {
+            &self.endpoint.client
+        }
 
-            #[doc(hidden)]
-            fn get_method(&self) -> &Method {
-                &self.method
-            }
+        #[doc(hidden)]
+        fn get_method(&self) -> &Method {
+            &self.method
+        }
 
-            #[doc(hidden)]
-            fn get_url(&self) -> Url {
-                self.data.url.clone()
-            }
+        #[doc(hidden)]
+        fn get_url(&self) -> Url {
+            self.data.url.clone()
+        }
 
-            #[doc(hidden)]
-            fn get_mut_data(&mut self) -> &mut Data {
-                &mut self.data
-            }
+        #[doc(hidden)]
+        fn get_mut_data(&mut self) -> &mut Data {
+            &mut self.data
+        }
 
-            #[doc(hidden)]
-            fn get_owned_data(self) -> Data {
-                self.data
-            }
+        #[doc(hidden)]
+        fn get_owned_data(self) -> Data {
+            self.data
         }
     )
 }
@@ -288,7 +286,9 @@ pub struct Get<'a> {
     data: Data,
 }
 
-impl_Request!(Get);
+impl<'a> Request<'a> for Get<'a> {
+    impl_Request_accessors!(Get);
+}
 
 impl<'a> Get<'a> {
     fn_new!(Get);
@@ -304,7 +304,10 @@ pub struct Post<'a> {
     data: Data,
 }
 
-impl_Request!(Post);
+impl<'a> Request<'a> for Post<'a> {
+    impl_Request_accessors!(Post);
+}
+
 impl_Body!(Post);
 
 impl<'a> Post<'a> {
@@ -321,7 +324,9 @@ pub struct Delete<'a> {
     data: Data,
 }
 
-impl_Request!(Delete);
+impl<'a> Request<'a> for Delete<'a> {
+    impl_Request_accessors!(Delete);
+}
 
 impl<'a> Delete<'a> {
     fn_new!(Delete);
