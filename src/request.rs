@@ -182,8 +182,8 @@ pub trait Request<'a> {
 
         let data = self.get_owned_data();
 
-        if let Some(headers) = data.headers {
-            request = request.headers(headers);
+        if let Some(h) = data.headers {
+            request = request.headers(h);
         }
 
         if let Some(b) = data.body {
