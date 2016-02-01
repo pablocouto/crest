@@ -216,6 +216,10 @@ pub trait Body<'a> where
     fn body(&mut self, body: &'a str);
 }
 
+/**
+Stores data internal to a request.
+ */
+#[doc(hidden)]
 #[derive(Debug)]
 pub struct Data {
     url: Url,
