@@ -4,6 +4,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.3.1] - 2016-02-01
+### Changed
+- Refactor to facilitate overriding request methods
+
 ## [0.3.0] - 2016-01-31
 ### Added
 - Support for deserialization from JSON responses
