@@ -44,8 +44,7 @@ macro_rules! fn_new {
             endpoint: &'a Endpoint,
             path: P,
         ) -> Result<Self> where
-            P: IntoIterator<Item = &'a str>,
-        Self: Sized
+            P: IntoIterator<Item = &'a str>
         {
             let path = path.into_iter().collect::<Vec<_>>().join("/");
             let url = try!(endpoint.base.join(&path));
@@ -105,7 +104,7 @@ macro_rules! impl_Body {
 /**
 Affords default request functionality.
  */
-pub trait Request<'a> {
+pub trait Request<'a>: Sized {
     #[doc(hidden)] fn get_client(&self) -> &Client;
     #[doc(hidden)] fn get_method(&self) -> &Method;
     #[doc(hidden)] fn get_url(&self) -> Url;
@@ -176,9 +175,7 @@ pub trait Request<'a> {
     /**
     Performs the request.
      */
-    fn send(self) -> Result<Response> where
-        Self: Sized
-    {
+    fn send(self) -> Result<Response> {
         let body;
 
         let client: &Client = unsafe { &*(self.get_client() as *const _) };
@@ -214,8 +211,7 @@ pub trait Request<'a> {
     Convenience function to perform a request, deserializing its response.
      */
     fn send_and_into<T>(self) -> Result<T> where
-        T: Deserialize,
-        Self: Sized
+        T: Deserialize
     {
         let response = try!(self.send());
         response.into()
