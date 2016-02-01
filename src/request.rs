@@ -73,13 +73,6 @@ macro_rules! impl_Request {
             fn get_owned_data(self) -> Data {
                 self.data
             }
-
-            fn send_and_into<T>(self) -> Result<T> where
-                T: Deserialize
-            {
-                let response = try!(self.send());
-                response.into()
-            }
         }
     )
 }
@@ -209,7 +202,12 @@ pub trait Request<'a> {
     Convenience function to perform a request, deserializing its response.
      */
     fn send_and_into<T>(self) -> Result<T> where
-        T: Deserialize;
+        T: Deserialize,
+        Self: Sized
+    {
+        let response = try!(self.send());
+        response.into()
+    }
 }
 
 pub trait Body<'a> where
