@@ -176,6 +176,7 @@ pub trait Request<'a>: Sized {
     fn send(self) -> Result<Response> {
         let body;
 
+        // safe only if the `Client` obj is stored behind a reference in `self`
         let client: &Client = unsafe { &*(self.get_client() as *const _) };
         let method: Box<Fn(_) -> _> = match *self.get_method() {
             Method::Get => Box::new(|x| client.get(x)),
