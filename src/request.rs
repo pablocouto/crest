@@ -199,9 +199,10 @@ pub trait Request<'a>: Sized {
             request = request.body(&body);
         }
 
-        let response = try!(request
-                            .send()
-                            .map_err::<Error, _>(From::from));
+        let response = try!(
+            request.send()
+                .map_err::<Error, _>(From::from)
+        );
 
         Ok(Response(response))
     }
