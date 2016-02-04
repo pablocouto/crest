@@ -226,7 +226,7 @@ pub trait Body<'a>: Request<'a> {
     /**
     Sets the body of a `Request`.
      */
-    fn body(&mut self, body: &'a str) {
+    fn body(&mut self, body: &str) {
         self.get_mut_data().body = Some(body.into());
     }
 }
