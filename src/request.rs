@@ -108,7 +108,7 @@ macro_rules! impl_Body {
 }
 
 /**
-Affords default request functionality.
+Affords core request functionality.
  */
 pub trait Request<'a> {
     #[doc(hidden)] fn get_client(&self) -> Arc<Client>;
@@ -119,15 +119,25 @@ pub trait Request<'a> {
     #[doc(hidden)] fn explode(self) -> (Url, Data);
 
     /**
-    Appends the passed parameters to the HTTP query.
+    Sets the parameters of the request.
 
-    Parameters may be stored like this:
+    If the request is of type `POST`, the parameters will go in its body, and
+    one header will be set to `Content-Type: application/x-www-form-urlencoded`.
+
+    In any other case, the parameters will go in the URL query string, and no
+    header will be set.
+
+    Example:
 
     ```
-    let params = vec![
+    # use crest::prelude::*;
+    # let endpoint = Endpoint::new("https://httpbin.org/").unwrap();
+    # let mut request = endpoint.get(vec!["ip"]).unwrap();
+    // assuming a declared `request`
+    request.parameters(vec![
         ("param1", "value1"),
         ("param2", "value2"),
-    ];
+    ]);
     ```
      */
     fn parameters<P>(&mut self, params: P) where

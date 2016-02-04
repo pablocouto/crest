@@ -75,7 +75,7 @@ extern crate url;
 
 pub mod prelude {
     /*!
-    To ease getting Crest’s main entities into scope.
+    Crest’s prelude.
 
     ```
     use crest::prelude::*;
