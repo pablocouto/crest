@@ -22,6 +22,7 @@ use hyper::method::Method;
 use hyper::mime;
 use serde::de::Deserialize;
 use serde_json;
+use url::form_urlencoded;
 use url::Url;
 
 use error::{
@@ -79,6 +80,11 @@ macro_rules! impl_Request_accessors {
         }
 
         #[doc(hidden)]
+        fn get_url(&self) -> &Url {
+            &self.url
+        }
+
+        #[doc(hidden)]
         fn get_mut_url(&mut self) -> &mut Url {
             &mut self.url
         }
@@ -107,6 +113,7 @@ Affords default request functionality.
 pub trait Request<'a> {
     #[doc(hidden)] fn get_client(&self) -> Arc<Client>;
     #[doc(hidden)] fn get_method(&self) -> &Method;
+    #[doc(hidden)] fn get_url(&self) -> &Url;
     #[doc(hidden)] fn get_mut_url(&mut self) -> &mut Url;
     #[doc(hidden)] fn get_mut_data(&mut self) -> &mut Data;
     #[doc(hidden)] fn explode(self) -> (Url, Data);
@@ -318,6 +325,27 @@ pub struct Post<'a> {
 
 impl<'a> Request<'a> for Post<'a> {
     impl_Request_accessors!(Post);
+
+    fn parameters<P>(&mut self, params: P) where
+        P: IntoIterator<Item = (&'a str, &'a str)>
+    {
+        let mut params = params.into_iter()
+            .map(|(x, y)| (x.into(), y.into()))
+            .collect();
+
+        let new_params = {
+            if let Some(mut found_params) = self.get_url().query_pairs() {
+                found_params.append(&mut params);
+                found_params
+            } else {
+                params
+            }
+        };
+
+        self.headers().set(header::ContentType::form_url_encoded());
+        let url_encoded = form_urlencoded::serialize(new_params);
+        self.body(&url_encoded);
+    }
 }
 
 impl_Body!(Post);
