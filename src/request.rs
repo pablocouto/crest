@@ -104,7 +104,7 @@ macro_rules! impl_Body {
 /**
 Affords default request functionality.
  */
-pub trait Request<'a>: Sized {
+pub trait Request<'a> {
     #[doc(hidden)] fn get_client(&self) -> Arc<Client>;
     #[doc(hidden)] fn get_method(&self) -> &Method;
     #[doc(hidden)] fn get_mut_url(&mut self) -> &mut Url;
@@ -174,7 +174,9 @@ pub trait Request<'a>: Sized {
     /**
     Performs the request.
      */
-    fn send(self) -> Result<Response> {
+    fn send(self) -> Result<Response> where
+        Self: Sized
+    {
         let body;
 
         let client = self.get_client();
@@ -208,6 +210,7 @@ pub trait Request<'a>: Sized {
     Convenience function to perform a request, deserializing its response.
      */
     fn send_and_into<T>(self) -> Result<T> where
+        Self: Sized,
         T: Deserialize
     {
         let response = try!(self.send());
