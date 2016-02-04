@@ -17,8 +17,9 @@ use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
 
 use hyper::client::Client;
-use hyper::header::Headers;
+use hyper::header::{self, Headers};
 use hyper::method::Method;
+use hyper::mime;
 use serde::de::Deserialize;
 use serde_json;
 use url::Url;
@@ -271,6 +272,16 @@ impl Response {
     pub fn into<T>(self) -> Result<T> where
         T: Deserialize
     {
+        match self.headers.get::<header::ContentType>() {
+            Some(h) => match (h.0).1 {
+                mime::SubLevel::Json => (),
+                _ => return Err(Error::NoJson),
+            },
+            None =>
+                // hoping for the best
+                (),
+        }
+
         serde_json::from_reader(self.0)
             .map_err(From::from)
     }

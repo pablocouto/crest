@@ -19,6 +19,7 @@ use url::ParseError as UrlParseError;
 
 #[derive(Debug)]
 pub enum Error {
+    NoJson,
     Hyper(HyperError),
     SerdeJson(SerdeJsonError),
     Url(UrlParseError),
@@ -33,6 +34,7 @@ impl fmt::Display for Error {
 impl StdError for Error {
     fn description(&self) -> &str {
         match *self {
+            Error::NoJson => "The response is not in JSON format.",
             Error::Hyper(ref e) => e.description(),
             Error::SerdeJson(ref e) => e.description(),
             Error::Url(ref e) => e.description(),
