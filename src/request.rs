@@ -52,7 +52,6 @@ macro_rules! fn_new {
             let url = try!(endpoint.base.join(&path));
             let method = Method::$ty;
             let data = Data {
-                url: url,
                 headers: None,
                 body: None,
             };
@@ -60,6 +59,7 @@ macro_rules! fn_new {
             Ok($ty {
                 endpoint: endpoint,
                 method: method,
+                url: url,
                 data: data,
             })
         }
@@ -79,8 +79,8 @@ macro_rules! impl_Request_accessors {
         }
 
         #[doc(hidden)]
-        fn get_url(&self) -> Url {
-            self.data.url.clone()
+        fn get_mut_url(&mut self) -> &mut Url {
+            &mut self.url
         }
 
         #[doc(hidden)]
@@ -89,8 +89,8 @@ macro_rules! impl_Request_accessors {
         }
 
         #[doc(hidden)]
-        fn get_owned_data(self) -> Data {
-            self.data
+        fn explode(self) -> (Url, Data) {
+            (self.url, self.data)
         }
     )
 }
@@ -104,12 +104,12 @@ macro_rules! impl_Body {
 /**
 Affords default request functionality.
  */
-pub trait Request<'a>: Sized {
+pub trait Request<'a> {
     #[doc(hidden)] fn get_client(&self) -> Arc<Client>;
     #[doc(hidden)] fn get_method(&self) -> &Method;
-    #[doc(hidden)] fn get_url(&self) -> Url;
+    #[doc(hidden)] fn get_mut_url(&mut self) -> &mut Url;
     #[doc(hidden)] fn get_mut_data(&mut self) -> &mut Data;
-    #[doc(hidden)] fn get_owned_data(self) -> Data;
+    #[doc(hidden)] fn explode(self) -> (Url, Data);
 
     /**
     Appends the passed parameters to the HTTP query.
@@ -126,20 +126,19 @@ pub trait Request<'a>: Sized {
     fn parameters<P>(&mut self, params: P) where
         P: IntoIterator<Item = (&'a str, &'a str)>
     {
-        let data = self.get_mut_data();
-
         let mut params = params.into_iter()
             .map(|(x, y)| (x.into(), y.into()))
             .collect();
 
+        let url = self.get_mut_url();
         let new_params;
-        if let Some(mut found_params) = data.url.query_pairs() {
+        if let Some(mut found_params) = url.query_pairs() {
             found_params.append(&mut params);
             new_params = found_params
         } else {
             new_params = params
         };
-        data.url.set_query_from_pairs(new_params);
+        url.set_query_from_pairs(new_params);
     }
 
     /**
@@ -175,7 +174,9 @@ pub trait Request<'a>: Sized {
     /**
     Performs the request.
      */
-    fn send(self) -> Result<Response> {
+    fn send(self) -> Result<Response> where
+        Self: Sized
+    {
         let body;
 
         let client = self.get_client();
@@ -186,15 +187,12 @@ pub trait Request<'a>: Sized {
             _ => unimplemented!(),
         };
 
-        let url = self.get_url();
+        let (url, data) = self.explode();
+
         let mut request = method(url);
-
-        let data = self.get_owned_data();
-
         if let Some(h) = data.headers {
             request = request.headers(h);
         }
-
         if let Some(b) = data.body {
             body = b;
             request = request.body(&body);
@@ -212,6 +210,7 @@ pub trait Request<'a>: Sized {
     Convenience function to perform a request, deserializing its response.
      */
     fn send_and_into<T>(self) -> Result<T> where
+        Self: Sized,
         T: Deserialize
     {
         let response = try!(self.send());
@@ -237,7 +236,6 @@ Stores data internal to a request.
 #[doc(hidden)]
 #[derive(Debug)]
 pub struct Data {
-    url: Url,
     headers: Option<Headers>,
     body: Option<String>,
 }
@@ -294,6 +292,7 @@ A `GET` request.
 pub struct Get<'a> {
     endpoint: &'a Endpoint,
     method: Method,
+    url: Url,
     data: Data,
 }
 
@@ -312,6 +311,7 @@ A `POST` request.
 pub struct Post<'a> {
     endpoint: &'a Endpoint,
     method: Method,
+    url: Url,
     data: Data,
 }
 
@@ -332,6 +332,7 @@ A `DELETE` request.
 pub struct Delete<'a> {
     endpoint: &'a Endpoint,
     method: Method,
+    url: Url,
     data: Data,
 }
 
