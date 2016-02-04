@@ -28,7 +28,47 @@ features = ["nightly"]
 
 # Usage
 
-Documentation is available
+## Example: Making a `GET` request and deserializing the response
+
+The following code first constructs a `GET` request for a resource at
+`https://httpbin.org/ip`, and then deserializes the response – in JSON format –
+into a custom type.
+
+Note that deserialization is performed by
+[serde](https://crates.io/crates/serde/); for more information on how to derive
+`Deserialize` for custom types, refer to serde
+[documentation](https://github.com/serde-rs/serde).
+
+```rust
+extern crate crest;
+extern crate serde;
+
+use crest::error::Result;
+use crest::prelude::*;
+
+#[derive(Debug, Deserialize)]
+struct HttpbinIP {
+    origin: String,
+}
+
+fn example() -> Result<HttpbinIP> {
+    // 1. Construct the endpoint off a base URL
+    let endpoint = try!(Endpoint::new("https://httpbin.org/"));
+
+    // 2. Construct the request
+    let request = try!(endpoint.get(vec!["ip"]));
+
+    // 3. Perform the request
+    let response = try!(request.send());
+
+    // 4. Deserialize the response
+    let ip = try!(response.into::<HttpbinIP>());
+
+    Ok(ip)
+}
+```
+
+More documentation is available
 [here](https://pablocouto.github.io/crest/crest/index.html).
 
 # License
