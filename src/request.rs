@@ -131,12 +131,13 @@ pub trait Request<'a> {
             .collect();
 
         let url = self.get_mut_url();
-        let new_params;
-        if let Some(mut found_params) = url.query_pairs() {
-            found_params.append(&mut params);
-            new_params = found_params
-        } else {
-            new_params = params
+        let new_params = {
+            if let Some(mut found_params) = url.query_pairs() {
+                found_params.append(&mut params);
+                found_params
+            } else {
+                params
+            }
         };
         url.set_query_from_pairs(new_params);
     }
