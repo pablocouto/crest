@@ -14,6 +14,7 @@ REST requests.
  */
 
 use std::ops::{Deref, DerefMut};
+use std::sync::Arc;
 
 use hyper::client::Client;
 use hyper::header::Headers;
@@ -67,8 +68,8 @@ macro_rules! fn_new {
 macro_rules! impl_Request_accessors {
     ($ty: ident) => (
         #[doc(hidden)]
-        fn get_client(&self) -> &Client {
-            &self.endpoint.client
+        fn get_client(&self) -> Arc<Client> {
+            self.endpoint.client.clone()
         }
 
         #[doc(hidden)]
@@ -103,7 +104,7 @@ macro_rules! impl_Body {
 Affords default request functionality.
  */
 pub trait Request<'a>: Sized {
-    #[doc(hidden)] fn get_client(&self) -> &Client;
+    #[doc(hidden)] fn get_client(&self) -> Arc<Client>;
     #[doc(hidden)] fn get_method(&self) -> &Method;
     #[doc(hidden)] fn get_url(&self) -> Url;
     #[doc(hidden)] fn get_mut_data(&mut self) -> &mut Data;
@@ -176,8 +177,7 @@ pub trait Request<'a>: Sized {
     fn send(self) -> Result<Response> {
         let body;
 
-        // safe only if the `Client` obj is stored behind a reference in `self`
-        let client: &Client = unsafe { &*(self.get_client() as *const _) };
+        let client = self.get_client();
         let method: Box<Fn(_) -> _> = match *self.get_method() {
             Method::Get => Box::new(|x| client.get(x)),
             Method::Post => Box::new(|x| client.post(x)),

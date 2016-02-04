@@ -92,6 +92,7 @@ pub mod error;
 pub mod request;
 
 use std::fmt;
+use std::sync::Arc;
 
 use hyper::client::Client;
 use url::Url;
@@ -104,12 +105,12 @@ Handle for working with `Request`s. This is the main entry point to the library.
 */
 pub struct Endpoint {
     base: Url,
-    client: Client,
+    client: Arc<Client>,
 }
 
 impl fmt::Debug for Endpoint {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let client_ptr = &self.client as *const Client;
+        let client_ptr = &self.client as *const Arc<Client>;
         f.debug_struct("Endpoint")
             .field("base", &self.base)
             .field("client as *const", &client_ptr)
@@ -125,7 +126,7 @@ impl Endpoint {
      */
     pub fn new(base: &str) -> Result<Endpoint> {
         let url = try!(Url::parse(base));
-        let client = Client::new();
+        let client = Arc::new(Client::new());
 
         Ok(Endpoint {
             base: url,
