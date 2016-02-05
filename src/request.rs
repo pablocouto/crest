@@ -41,7 +41,7 @@ macro_rules! fn_new {
         `/status/418` can be represented like this:
 
         ```
-        let resource = vec!["status", "418"];
+        let resource = &["status", "418"];
         ```
          */
         pub fn new<I>(
@@ -172,9 +172,9 @@ pub trait Request<'a> {
     ```
     # use crest::prelude::*;
     # let endpoint = Endpoint::new("https://httpbin.org/").unwrap();
-    # let mut request = endpoint.get(vec!["ip"]).unwrap();
+    # let mut request = endpoint.get(&["ip"]).unwrap();
     // assuming a declared `request`
-    request.parameters(vec![
+    request.parameters(&[
         ("param1", "value1"),
         ("param2", "value2"),
     ]);
@@ -204,7 +204,7 @@ pub trait Request<'a> {
 
     # fn main() {
     # let endpoint = Endpoint::new("https://httpbin.org/").unwrap();
-    # let mut request = endpoint.get(vec!["ip"]).unwrap();
+    # let mut request = endpoint.get(&["ip"]).unwrap();
     // assuming a declared `request`
     request.headers().set(header::Connection::close());
     # }
