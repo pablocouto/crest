@@ -56,7 +56,7 @@ fn example() -> Result<HttpbinIP> {
     let endpoint = try!(Endpoint::new("https://httpbin.org/"));
 
     // 2. Construct the request
-    let request = try!(endpoint.get(vec!["ip"]));
+    let request = try!(endpoint.get(&["ip"]));
 
     // 3. Perform the request
     let response = try!(request.send());
