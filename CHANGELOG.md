@@ -4,6 +4,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.3.3] - 2016-02-05
+### Changed
+- Updated documentation
+- Generalized `path` in request constructors
+
 ## [0.3.2] - 2016-02-05
 ### Added
 - Check that responses come in JSON format when expected
