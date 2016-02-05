@@ -44,13 +44,20 @@ macro_rules! fn_new {
         let resource = vec!["status", "418"];
         ```
          */
-        pub fn new<P>(
+        pub fn new<I>(
             endpoint: &'a Endpoint,
-            path: P,
+            path: I,
         ) -> Result<Self> where
-            P: IntoIterator<Item = &'a str>
+            I: IntoIterator,
+            I::Item: AsRef<str>,
         {
-            let path = path.into_iter().collect::<Vec<_>>().join("/");
+            let path = path.into_iter()
+                .map(|item| {
+                    item.as_ref().into()
+                })
+                .collect::<Vec<String>>()
+                .join("/");
+
             let url = try!(endpoint.base.join(&path));
             let method = Method::$ty;
             let data = Data {
