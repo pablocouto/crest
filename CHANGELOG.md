@@ -4,6 +4,15 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [0.3.2] - 2016-02-05
+### Added
+- Check that responses come in JSON format when expected
+### Changed
+- Further generalized `params` in `Request::parameters`
+- Parameters go in the body if making a POST request
+- Reverted use of `unsafe` within `Request::send`
+- Improved documentation
+
 ## [0.3.1] - 2016-02-01
 ### Changed
 - Refactor to facilitate overriding request methods
