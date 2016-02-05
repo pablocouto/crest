@@ -108,6 +108,32 @@ macro_rules! impl_Body {
 }
 
 /**
+Generates an updated parameters list for a request.
+
+If the request already has set parameters, a new list of parameters is
+constructed from them, with the passed ones appended. No change is done to the
+passed request.
+ */
+fn updated_parameters<'a, R, P>(
+    request: &R,
+    params: P,
+) -> Vec<(String, String)> where
+    R: Request<'a>,
+    P: IntoIterator<Item = (&'a str, &'a str)>,
+{
+    let mut params = params.into_iter()
+        .map(|(x, y)| (x.into(), y.into()))
+        .collect();
+
+    if let Some(mut found_params) = request.get_url().query_pairs() {
+        found_params.append(&mut params);
+        found_params
+    } else {
+        params
+    }
+}
+
+/**
 Affords core request functionality.
  */
 pub trait Request<'a> {
@@ -141,22 +167,11 @@ pub trait Request<'a> {
     ```
      */
     fn parameters<P>(&mut self, params: P) where
+        Self: Sized,
         P: IntoIterator<Item = (&'a str, &'a str)>
     {
-        let mut params = params.into_iter()
-            .map(|(x, y)| (x.into(), y.into()))
-            .collect();
-
-        let url = self.get_mut_url();
-        let new_params = {
-            if let Some(mut found_params) = url.query_pairs() {
-                found_params.append(&mut params);
-                found_params
-            } else {
-                params
-            }
-        };
-        url.set_query_from_pairs(new_params);
+        let new_params = updated_parameters(self, params);
+        self.get_mut_url().set_query_from_pairs(new_params);
     }
 
     /**
@@ -339,19 +354,8 @@ impl<'a> Request<'a> for Post<'a> {
     fn parameters<P>(&mut self, params: P) where
         P: IntoIterator<Item = (&'a str, &'a str)>
     {
-        let mut params = params.into_iter()
-            .map(|(x, y)| (x.into(), y.into()))
-            .collect();
-
-        let new_params = {
-            if let Some(mut found_params) = self.get_url().query_pairs() {
-                found_params.append(&mut params);
-                found_params
-            } else {
-                params
-            }
-        };
-
+        let new_params = updated_parameters(self, params);
+        self.get_mut_url().query = None;
         self.headers().set(header::ContentType::form_url_encoded());
         let url_encoded = form_urlencoded::serialize(new_params);
         self.body(&url_encoded);
