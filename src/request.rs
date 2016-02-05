@@ -13,6 +13,7 @@ distributed except according to those terms.
 REST requests.
  */
 
+use std::borrow::Borrow;
 use std::ops::{Deref, DerefMut};
 use std::sync::Arc;
 
@@ -114,15 +115,21 @@ If the request already has set parameters, a new list of parameters is
 constructed from them, with the passed ones appended. No change is done to the
 passed request.
  */
-fn updated_parameters<'a, R, P>(
+fn updated_parameters<'a, R, I, K, V>(
     request: &R,
-    params: P,
+    params: I,
 ) -> Vec<(String, String)> where
     R: Request<'a>,
-    P: IntoIterator<Item = (&'a str, &'a str)>,
+    I: IntoIterator,
+    I::Item: Borrow<(K, V)>,
+    K: AsRef<str>,
+    V: AsRef<str>,
 {
     let mut params = params.into_iter()
-        .map(|(x, y)| (x.into(), y.into()))
+        .map(|item| {
+            let &(ref x, ref y) = item.borrow();
+            (x.as_ref().into(), y.as_ref().into())
+        })
         .collect();
 
     if let Some(mut found_params) = request.get_url().query_pairs() {
@@ -166,9 +173,12 @@ pub trait Request<'a> {
     ]);
     ```
      */
-    fn parameters<P>(&mut self, params: P) where
+    fn parameters<I, K, V>(&mut self, params: I) where
         Self: Sized,
-        P: IntoIterator<Item = (&'a str, &'a str)>
+        I: IntoIterator,
+        I::Item: Borrow<(K, V)>,
+        K: AsRef<str>,
+        V: AsRef<str>,
     {
         let new_params = updated_parameters(self, params);
         self.get_mut_url().set_query_from_pairs(new_params);
@@ -351,8 +361,11 @@ pub struct Post<'a> {
 impl<'a> Request<'a> for Post<'a> {
     impl_Request_accessors!(Post);
 
-    fn parameters<P>(&mut self, params: P) where
-        P: IntoIterator<Item = (&'a str, &'a str)>
+    fn parameters<I, K, V>(&mut self, params: I) where
+        I: IntoIterator,
+        I::Item: Borrow<(K, V)>,
+        K: AsRef<str>,
+        V: AsRef<str>,
     {
         let new_params = updated_parameters(self, params);
         self.get_mut_url().query = None;
