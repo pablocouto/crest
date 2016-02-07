@@ -144,7 +144,7 @@ fn updated_parameters<'a, R, I, K, V>(
         })
         .collect();
 
-    if let Some(mut found_params) = request.get_url().query_pairs() {
+    if let Some(mut found_params) = request.get_parameters() {
         found_params.append(&mut params);
         found_params
     } else {
