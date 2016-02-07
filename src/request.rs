@@ -83,6 +83,11 @@ macro_rules! impl_Request_accessors {
         }
 
         #[doc(hidden)]
+        fn get_data(&self) -> &Data {
+            &self.data
+        }
+
+        #[doc(hidden)]
         fn get_method(&self) -> &Method {
             &self.method
         }
@@ -152,11 +157,19 @@ Affords core request functionality.
  */
 pub trait Request<'a> {
     #[doc(hidden)] fn get_client(&self) -> Arc<Client>;
+    #[doc(hidden)] fn get_data(&self) -> &Data;
     #[doc(hidden)] fn get_method(&self) -> &Method;
     #[doc(hidden)] fn get_url(&self) -> &Url;
     #[doc(hidden)] fn get_mut_url(&mut self) -> &mut Url;
     #[doc(hidden)] fn get_mut_data(&mut self) -> &mut Data;
     #[doc(hidden)] fn explode(self) -> (Url, Data);
+
+    /**
+    Returns the parameters of the request.
+     */
+    fn get_parameters(&self) -> Option<Vec<(String, String)>> {
+        self.get_url().query_pairs()
+    }
 
     /**
     Sets the parameters of the request.
@@ -367,6 +380,24 @@ pub struct Post<'a> {
 
 impl<'a> Request<'a> for Post<'a> {
     impl_Request_accessors!(Post);
+
+    fn get_parameters(&self) -> Option<Vec<(String, String)>> {
+        if let Some(ref headers) = self.get_data().headers {
+            match headers.get::<header::ContentType>() {
+                Some(h) => match (h.0).1 {
+                    mime::SubLevel::WwwFormUrlEncoded => (),
+                    _ => return None,
+                },
+                _ => return None,
+            }
+        } else {
+            return None
+        }
+        match self.get_data().body {
+            Some(ref b) => Some(form_urlencoded::parse(b.as_bytes())),
+            None => None,
+        }
+    }
 
     fn parameters<I, K, V>(&mut self, params: I) where
         I: IntoIterator,
