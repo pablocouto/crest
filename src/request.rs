@@ -88,7 +88,7 @@ macro_rules! impl_Request_accessors {
         }
 
         #[doc(hidden)]
-        fn get_method(&self) -> &Method {
+        fn get_method_(&self) -> &Method {
             &self.method
         }
 
@@ -158,11 +158,18 @@ Affords core request functionality.
 pub trait Request<'a> {
     #[doc(hidden)] fn get_client(&self) -> Arc<Client>;
     #[doc(hidden)] fn get_data(&self) -> &Data;
-    #[doc(hidden)] fn get_method(&self) -> &Method;
+    #[doc(hidden)] fn get_method_(&self) -> &Method;
     #[doc(hidden)] fn get_url(&self) -> &Url;
     #[doc(hidden)] fn get_mut_url(&mut self) -> &mut Url;
     #[doc(hidden)] fn get_mut_data(&mut self) -> &mut Data;
     #[doc(hidden)] fn explode(self) -> (Url, Data);
+
+    /**
+    Returns the method of the request.
+     */
+    fn get_method(&self) -> &Method {
+        &self.get_method_()
+    }
 
     /**
     Returns the parameters of the request.
