@@ -205,6 +205,13 @@ pub trait Request<'a> {
     }
 
     /**
+    Returns a reference to the `Headers` inside a `Request`, if present.
+     */
+    fn get_headers(&self) -> Option<&Headers> {
+        self.get_data().headers.as_ref()
+    }
+
+    /**
     Gives a mutable reference to the `Headers` inside a `Request`.
 
     For example, to declare a header with `Connection: close`:
