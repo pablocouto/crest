@@ -1,6 +1,6 @@
 [package]
 name = "crest"
-version = "0.3.3"
+version = "0.3.4"
 authors = ["Pablo Couto <pablo@0x221e.net>"]
 
 description = "A REST client library."
