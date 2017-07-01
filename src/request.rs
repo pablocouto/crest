@@ -1,6 +1,6 @@
 /*
 
-Copyright (c) 2016 Pablo Couto
+Copyright 2016–2017 Pablo Couto
 
 Licensed under the Apache License, Version 2.0 <LICENSE-APACHE>
 or the MIT license <LICENSE-MIT>, at your option. All files in
