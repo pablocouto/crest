@@ -28,19 +28,14 @@ Note that deserialization is performed by
 [documentation](https://github.com/serde-rs/serde).
 
 ```
-# #![cfg_attr(feature = "nightly", feature(custom_derive, plugin))]
-# #![cfg_attr(feature = "nightly", plugin(serde_macros))]
-#
+#[macro_use] extern crate serde_derive;
+
 extern crate crest;
 extern crate serde;
 
 use crest::error::Result;
 use crest::prelude::*;
 
-# #[cfg(not(feature = "nightly"))]
-# include!(concat!(env!("OUT_DIR"), "/type.rs.out"));
-#
-# #[cfg(feature = "nightly")]
 #[derive(Debug, Deserialize)]
 struct HttpbinIP {
     origin: String,

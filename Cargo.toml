@@ -9,23 +9,13 @@ documentation = "https://pablocouto.github.io/crest/crest/index.html"
 keywords = ["rest", "client"]
 license = "Apache-2.0/MIT"
 
-build = "build/build.rs"
-
 exclude = [
     "build/travis.sh",
 ]
 
-[features]
-default = ["serde_codegen"]
-nightly = ["serde_macros"]
-
-[build-dependencies]
-serde_codegen = { version = "0.6", optional = true }
-syntex = "0.26"
-
 [dependencies]
 hyper = "0.7"
-serde = "0.6"
-serde_json = "0.6"
-serde_macros = { version = "0.6", optional = true }
+serde = "1.0"
+serde_derive = "1.0"
+serde_json = "1.0"
 url = "0.5"

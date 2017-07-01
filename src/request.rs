@@ -261,7 +261,7 @@ pub trait Request<'a> {
      */
     fn send_and_into<T>(self) -> Result<T> where
         Self: Sized,
-        T: Deserialize
+        T: for <'de> Deserialize<'de>
     {
         let response = try!(self.send());
         response.into()
@@ -318,7 +318,7 @@ impl Response {
     format.
      */
     pub fn into<T>(self) -> Result<T> where
-        T: Deserialize
+        T: for <'de> Deserialize<'de>
     {
         match self.headers.get::<header::ContentType>() {
             Some(h) => match (h.0).1 {
