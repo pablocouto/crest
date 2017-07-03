@@ -9,10 +9,6 @@ documentation = "https://pablocouto.github.io/crest/crest/index.html"
 keywords = ["rest", "client"]
 license = "Apache-2.0/MIT"
 
-exclude = [
-    "build/travis.sh",
-]
-
 [dependencies]
 hyper = "0.7"
 serde = "1.0"
