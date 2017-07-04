@@ -58,7 +58,7 @@ macro_rules! fn_new {
                 .collect::<Vec<String>>()
                 .join("/");
 
-            let url = try!(endpoint.base.join(&path));
+            let url = endpoint.base.join(&path)?;
             let method = Method::$ty;
             let data = Data {
                 headers: None,
@@ -248,10 +248,8 @@ pub trait Request<'a> {
             request = request.body(&body);
         }
 
-        let response = try!(
-            request.send()
-                .map_err::<Error, _>(From::from)
-        );
+        let response = request.send()
+            .map_err::<Error, _>(From::from)?;
 
         Ok(Response(response))
     }
@@ -263,7 +261,7 @@ pub trait Request<'a> {
         Self: Sized,
         T: for <'de> Deserialize<'de>
     {
-        let response = try!(self.send());
+        let response = self.send()?;
         response.into()
     }
 }

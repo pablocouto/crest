@@ -43,16 +43,16 @@ struct HttpbinIP {
 
 fn example() -> Result<HttpbinIP> {
     // 1. Construct the endpoint off a base URL
-    let endpoint = try!(Endpoint::new("https://httpbin.org/"));
+    let endpoint = Endpoint::new("https://httpbin.org/")?;
 
     // 2. Construct the request
-    let request = try!(endpoint.get(&["ip"]));
+    let request = endpoint.get(&["ip"])?;
 
     // 3. Perform the request
-    let response = try!(request.send());
+    let response = request.send()?;
 
     // 4. Deserialize the response
-    let ip = try!(response.into::<HttpbinIP>());
+    let ip = response.into::<HttpbinIP>()?;
     # let ip_ = ip.origin.parse::<::std::net::Ipv4Addr>();
     # assert!(ip_.is_ok());
 
@@ -120,7 +120,7 @@ impl Endpoint {
     Requests will be made relative to the given URL.
      */
     pub fn new(base: &str) -> Result<Endpoint> {
-        let url = try!(Url::parse(base));
+        let url = Url::parse(base)?;
         let client = Arc::new(Client::new());
 
         Ok(Endpoint {
