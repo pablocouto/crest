@@ -1,13 +1,19 @@
 [package]
 name = "crest"
 version = "0.3.4"
-authors = ["Pablo Couto <pablo@0x221e.net>"]
+authors = ["Pablo Couto <pablo@uncharted.space>"]
 
 description = "A REST client library."
-repository = "https://github.com/pablocouto/crest"
 documentation = "https://pablocouto.github.io/crest/crest/index.html"
+repository = "https://github.com/pablocouto/crest"
+readme = "README.md"
 keywords = ["rest", "client"]
 license = "Apache-2.0/MIT"
+
+[badges]
+travis-ci = { repository = "pablocouto/crest" }
+is-it-maintained-issue-resolution = { repository = "pablocouto/crest" }
+is-it-maintained-open-issues = { repository = "pablocouto/crest" }
 
 [dependencies]
 hyper = "0.8"
