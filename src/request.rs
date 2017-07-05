@@ -132,19 +132,19 @@ fn updated_parameters<'a, R, I, K, V>(
     K: AsRef<str>,
     V: AsRef<str>,
 {
-    let mut params = params.into_iter()
+    let params: Vec<(String, String)> = params.into_iter()
         .map(|item| {
             let &(ref x, ref y) = item.borrow();
             (x.as_ref().into(), y.as_ref().into())
         })
         .collect();
 
-    if let Some(mut found_params) = request.get_url().query_pairs() {
-        found_params.append(&mut params);
-        found_params
-    } else {
-        params
-    }
+    let new_params = request.get_url().query_pairs()
+        .into_owned()
+        .chain(params)
+        .collect();
+
+    new_params
 }
 
 /**
@@ -188,7 +188,11 @@ pub trait Request<'a> {
         V: AsRef<str>,
     {
         let new_params = updated_parameters(self, params);
-        self.get_mut_url().set_query_from_pairs(new_params);
+        // TODO: Check whether `updated_parameters` is still necessary
+        // after `url` update
+        self.get_mut_url().query_pairs_mut()
+            .clear()
+            .extend_pairs(new_params);
     }
 
     /**
@@ -373,9 +377,11 @@ impl<'a> Request<'a> for Post<'a> {
         V: AsRef<str>,
     {
         let new_params = updated_parameters(self, params);
-        self.get_mut_url().query = None;
+        self.get_mut_url().set_query(None);
         self.headers().set(header::ContentType::form_url_encoded());
-        let url_encoded = form_urlencoded::serialize(new_params);
+        let url_encoded = form_urlencoded::Serializer::new(String::new())
+            .extend_pairs(new_params)
+            .finish();
         self.body(&url_encoded);
     }
 }
