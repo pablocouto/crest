@@ -242,6 +242,8 @@ pub trait Request<'a> {
         };
 
         let (url, data) = self.explode();
+        // Work around different versions of `url` and `hyper`’s `Url`
+        let url = ::hyper::Url::parse(url.as_str()).unwrap();
 
         let mut request = method(url);
         if let Some(h) = data.headers {

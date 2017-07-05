@@ -43,7 +43,7 @@ struct HttpbinIP {
 
 fn example() -> Result<HttpbinIP> {
     // 1. Construct the endpoint off a base URL
-    let endpoint = Endpoint::new("https://httpbin.org/")?;
+    let endpoint = Endpoint::new("http://httpbin.org/")?;
 
     // 2. Construct the request
     let request = endpoint.get(&["ip"])?;
