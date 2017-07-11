@@ -3,6 +3,7 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
+- Change license to GNU LGPL-3.0
 
 ## [0.3.4] - 2017-07-01
 ### Fixed
