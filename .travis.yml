@@ -1,0 +1,25 @@
+language: rust
+cache: cargo
+rust:
+  - nightly
+  - beta
+  - stable
+matrix:
+  fast-finish: true
+  allow_failures:
+    - rust: nightly
+
+git:
+  depth: 1
+
+before_deploy:
+  cargo doc
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $GITHUB_TOKEN
+  target_branch: gh-pages
+  local_dir: target/doc
+  on:
+    rust: stable
+    branch: master
