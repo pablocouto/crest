@@ -2,7 +2,7 @@
 name = "crest-next"
 version = "0.1.0"
 authors = ["Pablo Couto <pablo@uncharted.space>"]
-publish = "false"
+publish = false
 
 description = "A REST client library."
 documentation = "https://pablocouto.github.io/crest/crest/index.html"
