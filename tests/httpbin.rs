@@ -1,3 +1,5 @@
+// Copyright 2017 Pablo Couto
+
 #[macro_use]
 extern crate serde_json;
 

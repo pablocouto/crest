@@ -1,3 +1,5 @@
+// Copyright 2016–2017 Pablo Couto
+
 use hyper;
 use std::convert::From;
 use std::error::Error as StdError;

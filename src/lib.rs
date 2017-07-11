@@ -1,3 +1,5 @@
+// Copyright 2017 Pablo Couto
+
 extern crate futures;
 extern crate hyper;
 extern crate tokio_core;
