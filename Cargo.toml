@@ -4,6 +4,16 @@ version = "0.1.0"
 authors = ["Pablo Couto <pablo@uncharted.space>"]
 publish = "false"
 
+description = "A REST client library."
+documentation = "https://pablocouto.github.io/crest/crest/index.html"
+repository = "https://github.com/pablocouto/crest"
+keywords = ["rest", "client"]
+
+[badges]
+travis-ci = { repository = "pablocouto/crest" }
+is-it-maintained-issue-resolution = { repository = "pablocouto/crest" }
+is-it-maintained-open-issues = { repository = "pablocouto/crest" }
+
 [dependencies]
 futures = "0.1"
 hyper = "0.11"
