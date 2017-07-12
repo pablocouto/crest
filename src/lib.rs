@@ -15,6 +15,8 @@
 
 extern crate futures;
 extern crate hyper;
+extern crate hyper_tls;
+extern crate native_tls;
 extern crate tokio_core;
 extern crate url;
 
@@ -22,6 +24,7 @@ use futures::Future;
 use hyper::client::{FutureResponse, HttpConnector};
 use hyper::header;
 use hyper::{Client, Method, Request, Uri};
+use hyper_tls::HttpsConnector;
 use tokio_core::reactor::Core;
 use url::Url;
 
@@ -34,14 +37,17 @@ use error::Result;
 pub struct Endpoint {
     base: Url,
     core: Core,
-    client: Client<HttpConnector>,
+    client: Client<HttpsConnector<HttpConnector>>,
 }
 
 impl Endpoint {
     pub fn new(base: &str) -> Result<Self> {
         let base = Url::parse(base)?;
         let core = Core::new()?;
-        let client = Client::new(&core.handle());
+        let client = Client::configure()
+            // TODO: Default to number of processing units.
+            .connector(HttpsConnector::new(4, &core.handle())?)
+            .build(&core.handle());
         Ok(Self { base, core, client })
     }
 

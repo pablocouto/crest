@@ -14,6 +14,7 @@
 // <http://www.gnu.org/licenses/>.
 
 use hyper;
+use native_tls;
 use std::convert::From;
 use std::error::Error as StdError;
 use std::fmt;
@@ -26,8 +27,9 @@ pub type Result<T> = result::Result<T, Error>;
 #[derive(Debug)]
 pub enum Error {
     Hyper(hyper::Error),
-    UriError(hyper::error::UriError),
     Io(io::Error),
+    NativeTls(native_tls::Error),
+    UriError(hyper::error::UriError),
     Url(url::ParseError),
     Unknown,
 }
@@ -36,8 +38,9 @@ impl StdError for Error {
     fn description(&self) -> &str {
         match *self {
             Error::Hyper(ref error) => error.description(),
-            Error::UriError(ref error) => error.description(),
             Error::Io(ref error) => error.description(),
+            Error::NativeTls(ref error) => error.description(),
+            Error::UriError(ref error) => error.description(),
             Error::Url(ref error) => error.description(),
             Error::Unknown => "Unknown error",
         }
@@ -58,6 +61,7 @@ impl From<hyper::Error> for Error {
     }
 }
 
+// TODO: Refactor into `Error::Hyper`?
 impl From<hyper::error::UriError> for Error {
     fn from(error: hyper::error::UriError) -> Self {
         Error::UriError(error)
@@ -67,6 +71,12 @@ impl From<hyper::error::UriError> for Error {
 impl From<io::Error> for Error {
     fn from(error: io::Error) -> Self {
         Error::Io(error)
+    }
+}
+
+impl From<native_tls::Error> for Error {
+    fn from(error: native_tls::Error) -> Self {
+        Error::NativeTls(error)
     }
 }
 

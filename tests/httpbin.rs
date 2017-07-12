@@ -33,7 +33,7 @@ struct Helper {}
 
 impl Helper {
     fn new_endpoint() -> Endpoint {
-        Endpoint::new("http://httpbin.org/").unwrap()
+        Endpoint::new("https://httpbin.org/").unwrap()
     }
 
     fn status_ok(res: &Response) {
