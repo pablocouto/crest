@@ -1,5 +1,5 @@
 [package]
-name = "crest-next"
+name = "crest"
 version = "0.1.0"
 authors = ["Pablo Couto <pablo@uncharted.space>"]
 license = "LGPL-3.0"
