@@ -27,7 +27,9 @@ use url::Url;
 
 pub mod error;
 
-use error::{Error, Result};
+pub use error::Error;
+
+use error::Result;
 
 pub struct Endpoint {
     base: Url,

@@ -20,8 +20,7 @@ extern crate crest_next;
 extern crate futures;
 extern crate hyper;
 
-use crest_next::Endpoint;
-use crest_next::error::Error;
+use crest_next::{Endpoint, Error};
 use futures::Future;
 use futures::stream::{Concat2, Stream};
 use hyper::{Body, Response, StatusCode};
