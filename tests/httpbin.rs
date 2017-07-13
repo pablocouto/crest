@@ -20,7 +20,7 @@ extern crate crest;
 extern crate futures;
 extern crate hyper;
 
-use crest::{Endpoint, Error};
+use crest::{header, Endpoint, Error};
 use futures::Future;
 use futures::stream::{Concat2, Stream};
 use hyper::{Body, Response, StatusCode};
@@ -63,10 +63,17 @@ impl Helper {
 fn get_ip() {
     let mut endpoint = Helper::new_endpoint();
     let path = "ip";
-    let work = endpoint.get(path).unwrap().and_then(|res| {
-        Helper::status_ok(&res);
-        Helper::get_concat_body(res)
-    });
+    // Given the use of `into_future()`, it isn’t necessary to keep a
+    // ref to `endpoint` beyond the following block. Building the
+    // request this way avoids ref aliasing.
+    let work = {
+        let req = endpoint.get(path).unwrap();
+        let work = req.into_future().and_then(|res| {
+            Helper::status_ok(&res);
+            Helper::get_concat_body(res)
+        });
+        work
+    };
     let res = Helper::run_and_get_json_value(&mut endpoint, work);
     let data = res.get("origin").unwrap();
     assert!(data.is_string());
@@ -79,10 +86,18 @@ fn post_crate_name() {
     let mut endpoint = Helper::new_endpoint();
     let path = "post";
     let body = "crest-next";
-    let work = endpoint.post(path, body).unwrap().and_then(|res| {
-        Helper::status_ok(&res);
-        Helper::get_concat_body(res)
-    });
+    let work = {
+        let mut req = endpoint.post(path).unwrap();
+        req.headers_mut().set(
+            header::ContentLength(body.len() as u64),
+        );
+        req.set_body(body);
+        let work = req.into_future().and_then(|res| {
+            Helper::status_ok(&res);
+            Helper::get_concat_body(res)
+        });
+        work
+    };
     let res = Helper::run_and_get_json_value(&mut endpoint, work);
     let data = res.get("data").unwrap();
     assert_eq!(*data, json!("crest-next"));

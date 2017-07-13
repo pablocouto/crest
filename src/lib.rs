@@ -20,10 +20,11 @@ extern crate native_tls;
 extern crate tokio_core;
 extern crate url;
 
+pub use hyper::header;
+
 use futures::Future;
 use hyper::client::{FutureResponse, HttpConnector};
-use hyper::header;
-use hyper::{Client, Method, Request, Uri};
+use hyper::{Client, Headers, Method, Uri};
 use hyper_tls::HttpsConnector;
 use tokio_core::reactor::Core;
 use url::Url;
@@ -51,22 +52,21 @@ impl Endpoint {
         Ok(Self { base, core, client })
     }
 
-    pub fn get(&self, path: &str) -> Result<FutureResponse> {
+    fn request(&self, method: Method, path: &str) -> Result<Request> {
         let uri = join_to_uri(&self.base, path)?;
-        let work = self.client.get(uri);
-        Ok(work)
+        let req = hyper::Request::new(method, uri);
+        Ok(Request {
+            endpoint: &self,
+            request: req,
+        })
     }
 
-    // TODO: What should be used in place of `body: &'static str`?
-    pub fn post(&self, path: &str, body: &'static str) -> Result<FutureResponse> {
-        let uri = join_to_uri(&self.base, path)?;
-        let mut req = Request::new(Method::Post, uri);
-        req.headers_mut().set(
-            header::ContentLength(body.len() as u64),
-        );
-        req.set_body(body);
-        let work = self.client.request(req);
-        Ok(work)
+    pub fn get(&self, path: &str) -> Result<Request> {
+        self.request(Method::Get, path)
+    }
+
+    pub fn post(&self, path: &str) -> Result<Request> {
+        self.request(Method::Post, path)
     }
 
     // TODO: Is this constrained to work only with Hyper structs?
@@ -81,6 +81,27 @@ impl Endpoint {
     {
         let resp = self.core.run(work)?;
         Ok(resp)
+    }
+}
+
+// TODO: Implement Deref to avoid wrapping certain Hyper methods?
+pub struct Request<'a> {
+    endpoint: &'a Endpoint,
+    request: hyper::Request,
+}
+
+impl<'a> Request<'a> {
+    pub fn headers_mut(&mut self) -> &mut Headers {
+        self.request.headers_mut()
+    }
+
+    // TODO: Consider relying on From<T> for Body.
+    pub fn set_body(&mut self, body: &'static str) {
+        self.request.set_body(body);
+    }
+
+    pub fn into_future(self) -> FutureResponse {
+        self.endpoint.client.request(self.request)
     }
 }
 
