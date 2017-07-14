@@ -68,11 +68,10 @@ fn get_ip() {
     // request this way avoids ref aliasing.
     let work = {
         let req = endpoint.get(path).unwrap();
-        let work = req.into_future().and_then(|res| {
+        req.into_future().and_then(|res| {
             Helper::status_ok(&res);
             Helper::get_concat_body(res)
-        });
-        work
+        })
     };
     let res = Helper::run_and_get_json_value(&mut endpoint, work);
     let data = res.get("origin").unwrap();
@@ -92,11 +91,10 @@ fn post_crate_name() {
             header::ContentLength(body.len() as u64),
         );
         req.set_body(body);
-        let work = req.into_future().and_then(|res| {
+        req.into_future().and_then(|res| {
             Helper::status_ok(&res);
             Helper::get_concat_body(res)
-        });
-        work
+        })
     };
     let res = Helper::run_and_get_json_value(&mut endpoint, work);
     let data = res.get("data").unwrap();
