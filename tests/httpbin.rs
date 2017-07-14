@@ -20,10 +20,10 @@ extern crate crest;
 extern crate futures;
 extern crate hyper;
 
-use crest::{header, Endpoint, Error};
+use crest::{Endpoint, Error};
 use futures::Future;
 use futures::stream::{Concat2, Stream};
-use hyper::{Body, Response, StatusCode};
+use hyper::{header, Body, Response, StatusCode};
 use serde_json::Value;
 use std::net::Ipv4Addr;
 use std::ops::Deref;

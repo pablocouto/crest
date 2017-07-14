@@ -20,8 +20,6 @@ extern crate native_tls;
 extern crate tokio_core;
 extern crate url;
 
-pub use hyper::header;
-
 use futures::Future;
 use hyper::client::{FutureResponse, HttpConnector};
 use hyper::{Client, Headers, Method, Uri};
