@@ -20,11 +20,12 @@ extern crate crest;
 extern crate futures;
 extern crate hyper;
 
-use crest::{Endpoint, Error};
+use crest::Endpoint;
 use futures::Future;
 use futures::stream::{Concat2, Stream};
 use hyper::{header, Body, Response, StatusCode};
 use serde_json::Value;
+use std::fmt::Debug;
 use std::net::Ipv4Addr;
 use std::ops::Deref;
 use std::str;
@@ -52,7 +53,7 @@ impl Helper {
     where
         T: Future,
         T::Item: Deref<Target = [u8]>,
-        Error: From<T::Error>,
+        T::Error: Debug,
     {
         let res = endpoint.run(work).unwrap();
         Helper::to_json_value(&*res)

@@ -67,18 +67,12 @@ impl Endpoint {
         self.request(Method::Post, path)
     }
 
-    // TODO: Is this constrained to work only with Hyper structs?
-    //
-    // NB: It may be necessary to leave it somewhat unconstrained, in
-    // order to allow composition of requests from API
-    // consumers. Maybe a newtype would help to keep layers separate.
-    pub fn run<T>(&mut self, work: T) -> Result<T::Item>
+    // TODO: Improve API separation?
+    pub fn run<T>(&mut self, work: T) -> std::result::Result<T::Item, T::Error>
     where
         T: Future,
-        Error: From<T::Error>,
     {
-        let resp = self.core.run(work)?;
-        Ok(resp)
+        self.core.run(work)
     }
 }
 
