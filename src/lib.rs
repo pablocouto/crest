@@ -17,6 +17,7 @@ extern crate futures;
 extern crate hyper;
 extern crate hyper_tls;
 extern crate native_tls;
+extern crate num_cpus;
 extern crate tokio_core;
 extern crate url;
 
@@ -44,8 +45,7 @@ impl Endpoint {
         let base = Url::parse(base)?;
         let core = Core::new()?;
         let client = Client::configure()
-            // TODO: Default to number of processing units.
-            .connector(HttpsConnector::new(4, &core.handle())?)
+            .connector(HttpsConnector::new(num_cpus::get(), &core.handle())?)
             .build(&core.handle());
         Ok(Self { base, core, client })
     }
