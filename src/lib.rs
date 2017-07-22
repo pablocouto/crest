@@ -23,7 +23,7 @@ extern crate url;
 
 use futures::Future;
 use hyper::client::{FutureResponse, HttpConnector};
-use hyper::{Client, Headers, Method, Uri};
+use hyper::{Client, Method, Uri};
 use hyper_tls::HttpsConnector;
 use tokio_core::reactor::Core;
 use url::Url;
@@ -83,13 +83,20 @@ pub struct Request<'a> {
 }
 
 impl<'a> Request<'a> {
-    pub fn headers_mut(&mut self) -> &mut Headers {
-        self.request.headers_mut()
+    pub fn header<T>(mut self, header: T) -> Self
+    where
+        T: hyper::header::Header,
+    {
+        self.request.headers_mut().set(header);
+        self
     }
 
-    // TODO: Consider relying on From<T> for Body.
-    pub fn set_body(&mut self, body: &'static str) {
+    pub fn body<T>(mut self, body: T) -> Self
+    where
+        T: Into<hyper::Body>,
+    {
         self.request.set_body(body);
+        self
     }
 
     pub fn into_future(self) -> FutureResponse {

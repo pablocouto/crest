@@ -64,16 +64,10 @@ impl Helper {
 fn get_ip() {
     let mut endpoint = Helper::new_endpoint();
     let path = "ip";
-    // Given the use of `into_future()`, it isn’t necessary to keep a
-    // ref to `endpoint` beyond the following block. Building the
-    // request this way avoids ref aliasing.
-    let work = {
-        let req = endpoint.get(path).unwrap();
-        req.into_future().and_then(|res| {
-            Helper::status_ok(&res);
-            Helper::get_concat_body(res)
-        })
-    };
+    let work = endpoint.get(path).unwrap().into_future().and_then(|res| {
+        Helper::status_ok(&res);
+        Helper::get_concat_body(res)
+    });
     let res = Helper::run_and_get_json_value(&mut endpoint, work);
     let data = res.get("origin").unwrap();
     assert!(data.is_string());
@@ -86,17 +80,16 @@ fn post_crate_name() {
     let mut endpoint = Helper::new_endpoint();
     let path = "post";
     let body = "crest-next";
-    let work = {
-        let mut req = endpoint.post(path).unwrap();
-        req.headers_mut().set(
-            header::ContentLength(body.len() as u64),
-        );
-        req.set_body(body);
-        req.into_future().and_then(|res| {
+    let work = endpoint
+        .post(path)
+        .unwrap()
+        .header(header::ContentLength(body.len() as u64))
+        .body(body)
+        .into_future()
+        .and_then(|res| {
             Helper::status_ok(&res);
             Helper::get_concat_body(res)
-        })
-    };
+        });
     let res = Helper::run_and_get_json_value(&mut endpoint, work);
     let data = res.get("data").unwrap();
     assert_eq!(*data, json!("crest-next"));
