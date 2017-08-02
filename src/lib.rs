@@ -19,13 +19,16 @@ extern crate hyper_tls;
 extern crate native_tls;
 extern crate num_cpus;
 extern crate tokio_core;
+extern crate tokio_timer;
 extern crate url;
 
-use futures::Future;
-use hyper::client::{FutureResponse, HttpConnector};
+use futures::{future, Future};
+use hyper::client::HttpConnector;
 use hyper::{Client, Method, Uri};
 use hyper_tls::HttpsConnector;
+use std::time::Duration;
 use tokio_core::reactor::Core;
+use tokio_timer::{Timeout, Timer};
 use url::Url;
 
 pub mod error;
@@ -56,6 +59,7 @@ impl Endpoint {
         Ok(Request {
             endpoint: &self,
             request: req,
+            timeout: None,
         })
     }
 
@@ -80,6 +84,7 @@ impl Endpoint {
 pub struct Request<'a> {
     endpoint: &'a Endpoint,
     request: hyper::Request,
+    timeout: Option<Duration>,
 }
 
 impl<'a> Request<'a> {
@@ -99,8 +104,18 @@ impl<'a> Request<'a> {
         self
     }
 
-    pub fn into_future(self) -> FutureResponse {
-        self.endpoint.client.request(self.request)
+    pub fn timeout(mut self, timeout: Duration) -> Self {
+        self.timeout = Some(timeout);
+        self
+    }
+
+    pub fn into_future(self) -> Box<Future<Item = hyper::Response, Error = Error>> {
+        let future = self.endpoint.client.request(self.request).from_err();
+        if let Some(timeout) = self.timeout {
+            let future = timeout_future(future, timeout);
+            return Box::new(future);
+        }
+        Box::new(future)
     }
 }
 
@@ -113,6 +128,16 @@ fn join_to_uri(base: &Url, path: &str) -> Result<Uri> {
     let url = base.join(path)?;
     let uri = to_uri(&url)?;
     Ok(uri)
+}
+
+fn timeout_future<T>(future: T, timeout: Duration) -> Timeout<future::FromErr<T, Error>>
+where
+    T: Future,
+    Error: From<T::Error>,
+{
+    let timer = Timer::default();
+    let future = timer.timeout(future.from_err(), timeout);
+    future
 }
 
 #[cfg(test)]
