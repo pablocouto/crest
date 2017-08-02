@@ -24,7 +24,7 @@ extern crate url;
 
 use futures::{future, Future};
 use hyper::client::HttpConnector;
-use hyper::{Client, Method, Uri};
+use hyper::{Client, Method, StatusCode, Uri};
 use hyper_tls::HttpsConnector;
 use std::time::Duration;
 use tokio_core::reactor::Core;
@@ -122,6 +122,17 @@ impl<'a> Request<'a> {
 }
 
 pub struct Response(Box<Future<Item = hyper::Response, Error = Error> + 'static>);
+
+impl Response {
+    // NB: May panic.
+    pub fn assert_status(self, status: StatusCode) -> Self {
+        let future = self.map(move |elem| {
+            assert_eq!(elem.status(), status);
+            elem
+        });
+        Response(Box::new(future))
+    }
+}
 
 fn to_uri(url: &Url) -> Result<Uri> {
     let uri = url.as_str().parse()?;
