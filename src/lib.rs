@@ -35,6 +35,8 @@ pub mod error;
 
 pub use error::Error;
 
+mod impls;
+
 use error::Result;
 
 pub struct Endpoint {
@@ -109,15 +111,17 @@ impl<'a> Request<'a> {
         self
     }
 
-    pub fn into_future(self) -> Box<Future<Item = hyper::Response, Error = Error>> {
+    pub fn into_future(self) -> Response {
         let future = self.endpoint.client.request(self.request).from_err();
         if let Some(timeout) = self.timeout {
             let future = timeout_future(future, timeout);
-            return Box::new(future);
+            return Response(Box::new(future));
         }
-        Box::new(future)
+        Response(Box::new(future))
     }
 }
+
+pub struct Response(Box<Future<Item = hyper::Response, Error = Error> + 'static>);
 
 fn to_uri(url: &Url) -> Result<Uri> {
     let uri = url.as_str().parse()?;
