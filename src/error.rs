@@ -20,6 +20,7 @@ use std::error::Error as StdError;
 use std::fmt;
 use std::io;
 use std::result;
+use tokio_timer;
 use url;
 
 pub type Result<T> = result::Result<T, Error>;
@@ -29,8 +30,11 @@ pub enum Error {
     Hyper(hyper::Error),
     Io(io::Error),
     NativeTls(native_tls::Error),
+    TokioTimer(tokio_timer::TimerError),
     UriError(hyper::error::UriError),
     Url(url::ParseError),
+
+    Timeout,
     Unknown,
 }
 
@@ -40,8 +44,11 @@ impl StdError for Error {
             Error::Hyper(ref error) => error.description(),
             Error::Io(ref error) => error.description(),
             Error::NativeTls(ref error) => error.description(),
+            Error::TokioTimer(ref error) => error.description(),
             Error::UriError(ref error) => error.description(),
             Error::Url(ref error) => error.description(),
+
+            Error::Timeout => "Operation timed out",
             Error::Unknown => "Unknown error",
         }
     }
@@ -58,6 +65,15 @@ impl fmt::Display for Error {
 impl From<hyper::Error> for Error {
     fn from(error: hyper::Error) -> Self {
         Error::Hyper(error)
+    }
+}
+
+impl<T> From<tokio_timer::TimeoutError<T>> for Error {
+    fn from(error: tokio_timer::TimeoutError<T>) -> Self {
+        match error {
+            tokio_timer::TimeoutError::Timer(_, error) => Error::TokioTimer(error),
+            tokio_timer::TimeoutError::TimedOut(_) => Error::Timeout,
+        }
     }
 }
 
