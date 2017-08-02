@@ -20,10 +20,10 @@ extern crate crest;
 extern crate futures;
 extern crate hyper;
 
-use crest::Endpoint;
+use crest::{Endpoint, Error};
 use futures::Future;
-use futures::stream::{Concat2, Stream};
-use hyper::{header, Body, Response, StatusCode};
+use futures::stream::Stream;
+use hyper::{header, Response, StatusCode};
 use serde_json::Value;
 use std::fmt::Debug;
 use std::net::Ipv4Addr;
@@ -41,8 +41,9 @@ impl Helper {
         assert_eq!(res.status(), StatusCode::Ok);
     }
 
-    fn get_concat_body(res: Response) -> Concat2<Body> {
-        res.body().concat2()
+    fn get_concat_body(res: Response) -> Box<Future<Item = hyper::Chunk, Error = Error>> {
+        let body = res.body().concat2().from_err();
+        Box::new(body)
     }
 
     fn to_json_value(data: &[u8]) -> Value {
