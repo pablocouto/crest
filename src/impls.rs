@@ -13,13 +13,22 @@
 // License version 3 along with this program.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-use Response;
 use error::Error;
 use futures::{self, future};
 use hyper;
+use {Response, ResponseBody};
 
 impl future::Future for Response {
     type Item = hyper::Response;
+    type Error = Error;
+
+    fn poll(&mut self) -> futures::Poll<Self::Item, Self::Error> {
+        self.future.poll()
+    }
+}
+
+impl future::Future for ResponseBody {
+    type Item = hyper::Chunk;
     type Error = Error;
 
     fn poll(&mut self) -> futures::Poll<Self::Item, Self::Error> {

@@ -22,13 +22,13 @@ extern crate tokio_core;
 extern crate tokio_timer;
 extern crate url;
 
-use futures::{future, Future};
+use futures::{future, stream, Future, Stream};
 use hyper::client::HttpConnector;
 use hyper::{Client, Method, StatusCode, Uri};
 use hyper_tls::HttpsConnector;
 use std::time::Duration;
 use tokio_core::reactor::Core;
-use tokio_timer::{Timeout, Timer};
+use tokio_timer::{Timeout, TimeoutStream, Timer};
 use url::Url;
 
 pub mod error;
@@ -112,27 +112,51 @@ impl<'a> Request<'a> {
     }
 
     pub fn into_future(self) -> Response {
+        let timeout = self.timeout;
         let future = self.endpoint.client.request(self.request).from_err();
-        if let Some(timeout) = self.timeout {
-            let future = timeout_future(future, timeout);
-            return Response(Box::new(future));
+        if let Some(t) = timeout {
+            let future = timeout_future(future, t);
+            let future = Box::new(future);
+            return Response { future, timeout };
         }
-        Response(Box::new(future))
+        let future = Box::new(future);
+        Response { future, timeout }
     }
 }
 
-pub struct Response(Box<Future<Item = hyper::Response, Error = Error> + 'static>);
+pub struct Response {
+    future: Box<Future<Item = hyper::Response, Error = Error> + 'static>,
+    timeout: Option<Duration>,
+}
 
 impl Response {
     // NB: May panic.
     pub fn assert_status(self, status: StatusCode) -> Self {
+        let timeout = self.timeout;
         let future = self.map(move |elem| {
             assert_eq!(elem.status(), status);
             elem
         });
-        Response(Box::new(future))
+        let future = Box::new(future);
+        Self { future, timeout }
+    }
+
+    pub fn body(self) -> ResponseBody {
+        let timeout = self.timeout;
+        let future = self.future.and_then(move |elem| {
+            let body: Box<Stream<Item = hyper::Chunk, Error = Error>>;
+            if let Some(t) = timeout {
+                body = Box::new(timeout_stream(elem.body(), t));
+            } else {
+                body = Box::new(elem.body().from_err());
+            }
+            body.concat2()
+        });
+        ResponseBody(Box::new(future))
     }
 }
+
+pub struct ResponseBody(Box<Future<Item = hyper::Chunk, Error = Error> + 'static>);
 
 fn to_uri(url: &Url) -> Result<Uri> {
     let uri = url.as_str().parse()?;
@@ -153,6 +177,16 @@ where
     let timer = Timer::default();
     let future = timer.timeout(future.from_err(), timeout);
     future
+}
+
+fn timeout_stream<T>(stream: T, timeout: Duration) -> TimeoutStream<stream::FromErr<T, Error>>
+where
+    T: Stream,
+    Error: From<T::Error>,
+{
+    let timer = Timer::default();
+    let stream = timer.timeout_stream(stream.from_err(), timeout);
+    stream
 }
 
 #[cfg(test)]
