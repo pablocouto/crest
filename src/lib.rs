@@ -46,11 +46,13 @@ pub struct Endpoint {
 }
 
 impl Endpoint {
-    pub fn new(base: &str) -> Result<Self> {
+    // TODO: Use builder pattern?
+    pub fn new(base: &str, keep_alive: bool) -> Result<Self> {
         let base = Url::parse(base)?;
         let core = Core::new()?;
         let client = Client::configure()
             .connector(HttpsConnector::new(num_cpus::get(), &core.handle())?)
+            .keep_alive(keep_alive)
             .build(&core.handle());
         Ok(Self { base, core, client })
     }

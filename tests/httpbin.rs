@@ -34,7 +34,8 @@ struct Helper {}
 
 impl Helper {
     fn new_endpoint() -> Endpoint {
-        Endpoint::new("https://httpbin.org/").unwrap()
+        let keep_alive = true;
+        Endpoint::new("https://httpbin.org/", keep_alive).unwrap()
     }
 
     fn status_ok(res: &Response) {
