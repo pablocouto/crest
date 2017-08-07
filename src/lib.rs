@@ -13,6 +13,11 @@
 // License version 3 along with this program.  If not, see
 // <http://www.gnu.org/licenses/>.
 
+#![recursion_limit = "1024"]
+
+#[macro_use]
+extern crate error_chain;
+
 extern crate futures;
 extern crate hyper;
 extern crate hyper_tls;
@@ -31,13 +36,10 @@ use tokio_core::reactor::Core;
 use tokio_timer::{Timeout, TimeoutStream, Timer};
 use url::Url;
 
-pub mod error;
-
-pub use error::Error;
-
+mod error;
 mod impls;
 
-use error::Result;
+pub use error::*;
 
 pub struct Endpoint {
     base: Url,
@@ -49,9 +51,13 @@ impl Endpoint {
     // TODO: Use builder pattern?
     pub fn new(base: &str, keep_alive: bool) -> Result<Self> {
         let base = Url::parse(base)?;
-        let core = Core::new()?;
+        let core = Core::new().chain_err(
+            || "Failed to create Tokio event loop",
+        )?;
+        let tls_connector = HttpsConnector::new(num_cpus::get(), &core.handle())
+            .chain_err(|| "Failed to create TLS connector")?;
         let client = Client::configure()
-            .connector(HttpsConnector::new(num_cpus::get(), &core.handle())?)
+            .connector(tls_connector)
             .keep_alive(keep_alive)
             .build(&core.handle());
         Ok(Self { base, core, client })
@@ -161,7 +167,7 @@ impl Response {
 pub struct ResponseBody(Box<Future<Item = hyper::Chunk, Error = Error> + 'static>);
 
 fn to_uri(url: &Url) -> Result<Uri> {
-    let uri = url.as_str().parse()?;
+    let uri = url.as_str().parse().chain_err(|| "Failed to parse URL")?;
     Ok(uri)
 }
 
