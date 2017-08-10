@@ -138,12 +138,13 @@ pub struct Response {
 }
 
 impl Response {
-    // NB: May panic.
     pub fn assert_status(self, status: StatusCode) -> Self {
         let timeout = self.timeout;
-        let future = self.map(move |elem| {
-            assert_eq!(elem.status(), status);
-            elem
+        let future = self.and_then(move |elem| {
+            if elem.status() != status {
+                bail!(ErrorKind::UnexpectedStatus(elem.status(), status));
+            }
+            Ok(elem)
         });
         let future = Box::new(future);
         Self { future, timeout }

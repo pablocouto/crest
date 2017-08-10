@@ -13,8 +13,10 @@
 // License version 3 along with this program.  If not, see
 // <http://www.gnu.org/licenses/>.
 
+use hyper;
 use std::error::Error as StdError;
 use tokio_timer;
+use url;
 
 error_chain!{
     types {
@@ -24,17 +26,21 @@ error_chain!{
     links {}
 
     foreign_links {
-        Hyper(::hyper::Error);
-        UrlParse(::url::ParseError);
+        Hyper(hyper::Error);
+        UrlParse(url::ParseError);
     }
 
     errors {
-        TokioTimer(error: Box<StdError + Send>) {
-            description("Error at `tokio-timer`")
-            display("Error at `tokio-timer`: {}", error.description())
-        }
         Timeout {
             description("Operation timed out")
+        }
+        TokioTimer(error: Box<StdError + Send>) {
+            description("Error at ‘tokio-timer’`")
+            display("Error at ‘tokio-timer’: {}", error.description())
+        }
+        UnexpectedStatus(recv: hyper::StatusCode, req: hyper::StatusCode) {
+            description("Unexpected status received")
+            display("Expected status ‘{}’; received ‘{}’", req, recv)
         }
     }
 }
