@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["error","Error and Result types."],["prelude","Crest’s prelude."],["request","REST requests."]],"struct":[["Endpoint","Handle for working with `Request`s. This is the main entry point to the library."]]});

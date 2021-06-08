@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Delete","A `DELETE` request."],["Get","A `GET` request."],["Post","A `POST` request."],["Response","Stores the response to a REST request."]],"trait":[["Body","Affords setting the body for requests with body semantics."],["Request","Affords core request functionality."]]});
